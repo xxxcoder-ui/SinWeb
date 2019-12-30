@@ -1,0 +1,133 @@
+<html lang="en-US">
+<head>
+    <title>SINOVATE - Web wallet clientside</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="xtdevcoin; Charly">
+    <meta name="description" content="Tools for Blockchain">
+    <script src="./bignumber.js" type="text/javascript"></script>
+    <script src="./bitcore-lib.min.js" type="text/javascript"></script>
+    <script src="./jquery-3.2.1.js" type="text/javascript"></script>
+    <script src="./custom.js" type="text/javascript"></script>
+	<style>
+		.multiselect {
+			width: 200px;
+		}
+		.selectBox {
+			position: relative;
+		}
+		.selectBox select {
+			width: 100%;
+			font-weight: bold;
+		}
+		.overSelect {
+			position: absolute;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+		}
+		#coincontrol {
+			display: none;
+			border: 1px #dadada solid;
+		}
+		#coincontrol label {
+			display: block;
+		}
+		#coincontrol label:hover {
+			background-color: #1e90ff;
+		}
+		/* Style the tab */
+		.tab {
+		  overflow: hidden;
+		  border: 1px solid #ccc;
+		  background-color: #f1f1f1;
+		}
+		/* Style the buttons that are used to open the tab content */
+		.tab button {
+		  background-color: inherit;
+		  float: left;
+		  border: none;
+		  outline: none;
+		  cursor: pointer;
+		  padding: 14px 16px;
+		  transition: 0.3s;
+		}
+		/* Change background color of buttons on hover */
+		.tab button:hover {
+		  background-color: #ddd;
+		}
+		/* Create an active/current tablink class */
+		.tab button.active {
+		  background-color: #ccc;
+		}
+		/* Style the tab content */
+		.tabcontent {
+		  display: none;
+		  padding: 6px 12px;
+		  border: 1px solid #ccc;
+		  border-top: none;
+		}
+	</style>
+</head>
+<body>
+    <p id="error"></p>
+    <p id="appinput">Address: <input id="inputaddress" type='text' size='34' accept='text/plain' placeholder="SIN address format" onchange='openWalletForAddress(event)'>
+    OR Import Keyfile: <input id="keyfile" type='file' accept='text/plain' onchange='openWalletFromKeyJSONFile(event)'><br>
+    </p>
+	<p id="userinfo">Address: <b id="address"></b>&nbsp;&nbsp;&nbsp; Balance: <b id="balance">loading...</b></p>
+
+	<!-- Tab links -->
+	<div class="tab">
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'SendcoinTx')">Send coin</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'InvoicePayment')">Invoice payment</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'VoteTx')">E-Governance</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'BurnFundNodeTx')">BurnFund to create InfinityNode</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'UpdateMetadataTx')">Update node metadata</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'ChangeRewardAddress')">Change Reward address</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'SendData')">Proof of information</button>
+	  <button class="tablinks" onclick="ui.htmlOpenTab(event, 'Historical')">Historical</button>
+	</div>
+
+	<!-- Tab content -->
+	<div id="SendcoinTx" class="tabcontent">
+	  <h3>Send coin</h3>
+	  <p>Send SIN crypto currency (coin) from Alice to Bob.</p>
+	</div>
+	<div id="InvoicePayment" class="tabcontent">
+	  <h3>Invoice payment</h3>
+	  <p>Please following this instruction and if the merchant support SIN, your invoice can be validated in few seconds...(more detail)</p>
+	</div>
+	<div id="VoteTx" class="tabcontent">
+	  <h3>Vote</h3>
+	  <p>SIN govenance.</p>
+	</div>
+	<div id="BurnFundNodeTx" class="tabcontent">
+	  <h3>BurnFund to create InfinityNode</h3>
+	  <p>In order to run InfinityNode, you burn an amount to get a network's ticket.</p>
+	</div>
+	<div id="UpdateMetadataTx" class="tabcontent">
+	  <h3>Update node metadata</h3>
+	  <p>Metadata is some information about your node (IP, Node address)...(more detail)</p>
+	</div>
+	<div id="ChangeRewardAddress" class="tabcontent">
+	  <h3>Change Reward address</h3>
+	  <p>Change reward address by follow this step...(more detail)</p>
+	</div>
+	<div id="SendData" class="tabcontent">
+	  <h3>Proof of information (proof of integrity)</h3>
+	  <p>Coming soon(more detail)</p>
+	</div>
+	<div id="Historical" class="tabcontent">
+	  <h3>Historical</h3>
+	  <p>All your transactions</p>
+	</div>
+	<script type="text/javascript">
+	  //hide error alert at the beginning.
+	  $('#error').hide();
+	  $('#txCreate').hide();
+	  $('#userinfo').hide();
+	  $('#appinput').show();
+    </script>
+</body>
+</html>
