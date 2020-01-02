@@ -23,15 +23,15 @@ var configs = {
     status: 0,
     level: 0,
     errorcode: 0,
-	relayfee_per_kb: 25000000,
-	rawtx: null,
+    relayfee_per_kb: 25000000,
+    rawtx: null,
     coin: 100000000,
-	collateral: 10000,
-	voteAmount: 100,
-	sinBurnAddress: "SinBurnAddress123456789SuqaXbx3AMC",
-	sinMetaAddress: "SinBurnAddressForMetadataXXXXEU2mj",
-	sinNotificationAddress: "SinBurnAddressForNotifyXXXXXc42TcT",
-	sinGovernanceAddress: "SinBurnAddressGovernanceVoteba5vkQ",
+    collateral: 10000,
+    voteAmount: 100,
+    sinBurnAddress: "SinBurnAddress123456789SuqaXbx3AMC",
+    sinMetaAddress: "SinBurnAddressForMetadataXXXXEU2mj",
+    sinNotificationAddress: "SinBurnAddressForNotifyXXXXXc42TcT",
+    sinGovernanceAddress: "SinBurnAddressGovernanceVoteba5vkQ",
 }
 
 /**
@@ -40,7 +40,7 @@ var configs = {
 var ui_config = {
 // coincontrol
     coincontrol_expanded: false,
-	nav_tab: 0,
+    nav_tab: 0,
 }
 
 /**
@@ -70,17 +70,17 @@ const errorMessages = {
     "CoinControlVerifying": "Please waiting...",
     "CoinControlVerifyOK": "Verify finished. You can create a tx.",
     "CoinControlVerifyKO": "Verify finished with error! Please reopen your wallet.",
-	"DestinationAddressError": "Destination Address is not SIN format.",
-	"CreateTx": "Create transaction...",
-	"CreateTxOffline": "Transaction can be created in mode offline!",
-	"CreateTxKO": "Error when create transaction. Passphrase is unset and will be required in next time!",
-	"CreateTxKOLevel1": "Error when create transaction. Wallet is open with Level 1 (Watch only). Please open with your Keyfile",
-	"ProposalFormatKO": "Proposal must be a number between 10000000 and 99999999.",
-	"InvoiceInfoFormatKO": "Invoice's information is not allowed.",
-	"InvoiceInfoFormatNull": "Please use Send coin option if you don't pay a merchant.",
-	"ProposalOpinionKO": "Proposal opinion must be Yes or No.",
-	"SendTxNull": "Please create your transaction...",
-	"SendTxCommited": "Transaction is broadcast to network with successful!",
+    "DestinationAddressError": "Destination Address is not SIN format.",
+    "CreateTx": "Create transaction...",
+    "CreateTxOffline": "Transaction can be created in mode offline!",
+    "CreateTxKO": "Error when create transaction. Passphrase is unset and will be required in next time!",
+    "CreateTxKOLevel1": "Error when create transaction. Wallet is open with Level 1 (Watch only). Please open with your Keyfile",
+    "ProposalFormatKO": "Proposal must be a number between 10000000 and 99999999.",
+    "InvoiceInfoFormatKO": "Invoice's information is not allowed.",
+    "InvoiceInfoFormatNull": "Please use Send coin option if you don't pay a merchant.",
+    "ProposalOpinionKO": "Proposal opinion must be Yes or No.",
+    "SendTxNull": "Please create your transaction...",
+    "SendTxCommited": "Transaction is broadcast to network with successful!",
 }
 
 /**
@@ -88,7 +88,7 @@ const errorMessages = {
  */
 const defaults = {
 //Backend server
-	url: 'https://mobile.sinovate.io/api/SinovateAPI.php',
+    url: 'https://mobile.sinovate.io/api/SinovateAPI.php',
     version: 'v1',
     timeout : 5000,
 }
@@ -214,9 +214,9 @@ class UI {
         $('#'+id).append(htmlcode);
     }
     
-	/**
-	 * user open coin control. Get all coins of user from backend
-	 */
+    /**
+     * user open coin control. Get all coins of user from backend
+     */
     htmlUpdateCoinControl(){
         if (!ui_config.coincontrol_expanded) {
             if (wallet == null) {this.htmlUpdate('coincontrol','');}
@@ -225,19 +225,19 @@ class UI {
                 if(typeof coinList !== 'undefined' & coinList.length > 0){
                     $('#coincontrol').html('');
                     for (var i=0; i < coinList.length; i++){
-						if (coinList[i].amount > 0 && coinList[i].amount != configs.collateral){
+                        if (coinList[i].amount > 0 && coinList[i].amount != configs.collateral){
                             this.htmlInsertHTMLElement('coincontrol', '<label for="coin'+i+'"><input type="checkbox" id="'+coinList[i].txid+''+coinList[i].vout+
-							'" onchange="ui.htmlCoinControlSelectedManual(\''+coinList[i].txid+'-'+coinList[i].vout+'\');"/>' + coinList[i].amount + '</label>');
+                            '" onchange="ui.htmlCoinControlSelectedManual(\''+coinList[i].txid+'-'+coinList[i].vout+'\');"/>' + coinList[i].amount + '</label>');
                         }
-					}
+                    }
                 }
 
-				var coinsSelected = wallet.getCoinsControlSelected();
-				if(typeof coinsSelected !== 'undefined' & coinsSelected.length > 0){
-				    for (var i=0; i < coinsSelected.length; i++){
-				        $('#'+coinsSelected[i].txid+''+coinsSelected[i].vout).prop( "checked", true );
-					}
-				}
+                var coinsSelected = wallet.getCoinsControlSelected();
+                if(typeof coinsSelected !== 'undefined' & coinsSelected.length > 0){
+                    for (var i=0; i < coinsSelected.length; i++){
+                        $('#'+coinsSelected[i].txid+''+coinsSelected[i].vout).prop( "checked", true );
+                    }
+                }
             }
             $('#coincontrol').css("display","block");
             ui_config.coincontrol_expanded = true;
@@ -247,401 +247,403 @@ class UI {
         }
     }
 
-	htmlUpdateCoinControlFromAmount(amount){
-		if (wallet.getCoins().length <= 0){showError("CoinControlSelectEmpty", 1); return false;}
-		if (amount > 0) {} else {amount = $('#txAmount').val();}
-		if (amount == '' || amount == null) {showError("CoinControlSelectAmountNULL", 1); return false;}
-		if (parseFloat(amount) > wallet.getBalance()){showError("CoinControlSelectAmountTooBig", 1); return false;};
-		if (0 < parseFloat(amount) && parseFloat(amount) < wallet.getBalance()){
-			if (wallet.coinsControlSelectForAmount(parseFloat(amount))){
-				this.htmlUpdate('coincontrol_selected', wallet.calculBalance(wallet.getCoinsControlSelected()));
-				showError("CoinControlUpdated", 0);
-			} else {showError("WalletNULL", 2);}
-		}
-	}
+    htmlUpdateCoinControlFromAmount(amount){
+        if (wallet.getCoins().length <= 0){showError("CoinControlSelectEmpty", 1); return false;}
+        if (amount > 0) {} else {amount = $('#txAmount').val();}
+        if (amount == '' || amount == null) {showError("CoinControlSelectAmountNULL", 1); return false;}
+        if (parseFloat(amount) > wallet.getBalance()){showError("CoinControlSelectAmountTooBig", 1); return false;};
+        if (0 < parseFloat(amount) && parseFloat(amount) < wallet.getBalance()){
+            if (wallet.coinsControlSelectForAmount(parseFloat(amount))){
+                this.htmlUpdate('coincontrol_selected', wallet.calculBalance(wallet.getCoinsControlSelected()));
+                showError("CoinControlUpdated", 0);
+            } else {showError("WalletNULL", 2);}
+        }
+    }
 
-	/**
-	 * update selected coin in Array and put amount: sum of all selected coins available on HTML
-	 * @param {String} txid
-	 */
+    /**
+     * update selected coin in Array and put amount: sum of all selected coins available on HTML
+     * @param {String} txid
+     */
     htmlCoinControlSelectedManual(txid){
         if (wallet == null) {showError("WalletNULL", 2);}
         else {
             wallet.coinsControlSelected(txid);
-			if (wallet == null) {this.htmlUpdate('coincontrol_selected',0);}
-			else {
-				this.htmlUpdate('coincontrol_selected', wallet.calculBalance(wallet.getCoinsControlSelected()));
-			}
+            if (wallet == null) {this.htmlUpdate('coincontrol_selected',0);}
+            else {
+                this.htmlUpdate('coincontrol_selected', wallet.calculBalance(wallet.getCoinsControlSelected()));
+            }
         }
     }
 
-	/**
-	 * check input address enter by user is SIN address
-	 */
-	htmlCheckInputAddress(event){
-		var input = event.target.value;
-		if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){
-			showError("DestinationAddressError", 2);
-			return false;
-		}else{
-			$('#error').hide();
-		}
-	}
+    /**
+     * check input address enter by user is SIN address
+     */
+    htmlCheckInputAddress(event){
+        var input = event.target.value;
+        if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){
+            showError("DestinationAddressError", 2);
+            return false;
+        }else{
+            $('#error').hide();
+        }
+    }
 
-	/**
-	 * check input for invoice
-	 */
-	htmlCheckInputInvoiceInfo(event){
-		var input = event.target.value;
-		if (input.length > 0 && input.length <= 80){
-			var regex = /^[a-zA-Z0-9;!@#\$%\^\&*\)\(+=._-]+$/g;
-			if(!regex.test(input)){
-				showError("InvoiceInfoFormatKO", 2);
-				return false;
-			}else{
-				$('#error').hide();
-			}
-		}else if(input.length == 0){
-			showError("InvoiceInfoFormatNull", 1);
-			return false;
-		}else{
-			showError("InvoiceInfoFormatKO", 2);
-			return false;
-		}
-	}
-	/**
-	 * check input proposal
-	 */
-	htmlCheckInputProposalFormat(event)
-	{
-		var input = event.target.value;
-		if ( 10000000 <= input && input <= 99999999){ $('#error').hide();}
-		else {
-			showError("ProposalFormatKO", 2);
-			return false;
-		}
-	}
-	/**
-	 * check input for opinion
-	 */
-	htmlCheckInputOpinion(event)
+    /**
+     * check input for invoice
+     */
+    htmlCheckInputInvoiceInfo(event){
+        var input = event.target.value;
+        if (input.length > 0 && input.length <= 80){
+            var regex = /^[a-zA-Z0-9;!@#\$%\^\&*\)\(+=._-]+$/g;
+            if(!regex.test(input)){
+                showError("InvoiceInfoFormatKO", 2);
+                return false;
+            }else{
+                $('#error').hide();
+            }
+        }else if(input.length == 0){
+            showError("InvoiceInfoFormatNull", 1);
+            return false;
+        }else{
+            showError("InvoiceInfoFormatKO", 2);
+            return false;
+        }
+    }
+    /**
+     * check input proposal
+     */
+    htmlCheckInputProposalFormat(event)
     {
-	    var input = event.target.value;
-		if (typeof input === 'string' && ( input.trim().toUpperCase() == 'YES' || input.trim().toUpperCase() == 'NO')){$('#error').hide();}
-		else{
-			showError("ProposalOpinionKO", 2);
-			return false;
-		}
-	}
-	/**
-	 * if all selected coins are verified, button "Create" will be available
-	 */
-	htmlVerifyCoinSelected(){
-		configs.rawtx == null;
-		$('#commitTx').html("");
-		$('#rawtx').html("");
-		if (wallet == null) {showError("WalletNULL", 2);}
+        var input = event.target.value;
+        if ( 10000000 <= input && input <= 99999999){ $('#error').hide();}
         else {
-			var verifytxes = wallet.coinsControlVerifyUTXO().then(function verified(result){
-				alert(result);
-				if(result){
-					if (ui_config.nav_tab == 1){
-						$('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateTransaction()\">Create</button>");
-					} else if (ui_config.nav_tab == 2){
-						$('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateInvoicePayment()\">Create</button>");
-					} else if (ui_config.nav_tab == 3){
-						$('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateVote()\">Create</button>");
-					} else {
-						showError("UnknownNav", 2);
-					}
-					$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
-					showError("CreateTxOffline", 0);
-				}
-				else{$('#txCreate').html(""); $('#passphrase').html("");}
-			});
-		}
-	}
-	/**
-	 * button create transaction is clicked
-	 */
-	htmlCreateTransaction(){
-		configs.rawtx == null;
-		$('#commitTx').html("");
-		$('#rawtx').html("");
-		if (wallet == null) {showError("WalletNULL", 2);}
+            showError("ProposalFormatKO", 2);
+            return false;
+        }
+    }
+    /**
+     * check input for opinion
+     */
+    htmlCheckInputOpinion(event)
+    {
+        var input = event.target.value;
+        if (typeof input === 'string' && ( input.trim().toUpperCase() == 'YES' || input.trim().toUpperCase() == 'NO')){$('#error').hide();}
+        else{
+            showError("ProposalOpinionKO", 2);
+            return false;
+        }
+    }
+    /**
+     * if all selected coins are verified, button "Create" will be available
+     */
+    htmlVerifyCoinSelected(){
+        configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null) {showError("WalletNULL", 2);}
         else {
-		    var destination = $('#txDestination').val();
-			var amount = $('#txAmount').val();
-			var passphrase = $('#txPassphrase').val();
-			$('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
-			var tx = wallet.createTransaction(destination, amount, passphrase);
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			if (!tx){
-				configs.rawtx = null;
-				$('#commitTx').html("");
-			}else{
-				configs.rawtx = tx;
-			    $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-				$('#rawtx').html(tx.toString());
-				$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-			}
-		}
-	}
-	/**
-	 *
-	 */
-	htmlCreateInvoicePayment(){
-		configs.rawtx == null;
-		$('#commitTx').html("");
-		$('#rawtx').html("");
-		if (wallet == null) {showError("WalletNULL", 2);}
-		else {
-		    var destination = $('#txDestination').val();
-			var amount = $('#txAmount').val();
-			var invoiceInfo = $('#txInvoiceInfo').val();
-			var passphrase = $('#txPassphrase').val();
-			$('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
-			var tx = wallet.createInvoicePayment(destination, amount, invoiceInfo, passphrase);
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			if (!tx){
-				configs.rawtx = null;
-				$('#commitTx').html("");
-			}else{
-				configs.rawtx = tx;
-			    $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-				$('#rawtx').html(tx.toString());
-				$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-			}
-		}
-	}
-	/**
-	 * create Vote
-	 */
-	htmlCreateVote(){
-		configs.rawtx == null;
-		$('#commitTx').html("");
-		$('#rawtx').html("");
-		if (wallet == null) {showError("WalletNULL", 2);}
+            var verifytxes = wallet.coinsControlVerifyUTXO().then(function verified(result){
+                alert(result);
+                if(result){
+                    if (ui_config.nav_tab == 1){
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateTransaction()\">Create</button>");
+                    } else if (ui_config.nav_tab == 2){
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateInvoicePayment()\">Create</button>");
+                    } else if (ui_config.nav_tab == 3){
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateVote()\">Create</button>");
+                    } else {
+                        showError("UnknownNav", 2);
+                    }
+                    $('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
+                    showError("CreateTxOffline", 0);
+                }
+                else{$('#txCreate').html(""); $('#passphrase').html("");}
+            });
+        }
+    }
+    /**
+     * button create transaction is clicked
+     */
+    htmlCreateTransaction(){
+        configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null) {showError("WalletNULL", 2);}
         else {
-			var passphrase = $('#txPassphrase').val();
-			var opinion = $('#txOpinion').val();
-			var nOpinion = 0;
-			var proposal = $('#txProposalId').val();
-			var nProposalId = parseFloat(proposal);
-			
-			if (opinion.trim().trim().toUpperCase() == 'YES'){nOpinion=1;}
-			else if(opinion.trim().trim().toUpperCase() == 'NO'){nOpinion=0;}
-			else{
-				showError("ProposalOpinionKO", 2);
-				return false;
-			}
-			
-			if ( 10000000 > nProposalId || nProposalId > 99999999){
-				showError("ProposalFormatKO", 2);
-				return false;
-			}
-			
-			$('#rawtx').html("Creating a vote and send to " + configs.sinBurnAddress + " " + configs.voteAmount + " SIN");
-			var tx = wallet.createVote(nProposalId, nOpinion, passphrase);
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			if (!tx){
-				configs.rawtx = null;
-				$('#commitTx').html("");
-			}else{
-				configs.rawtx = tx;
-			    $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-				$('#rawtx').html(tx.toString());
-				$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-			}
-		}
-	}
-	/**
-	 * button send transaction is clicked
-	 *
-	 */
-	htmlSendTransaction(){
-		$('#commitTx').html("");
-		if (wallet == null) {showError("WalletNULL", 2); }
+            var destination = $('#txDestination').val();
+            var amount = $('#txAmount').val();
+            var passphrase = $('#txPassphrase').val();
+            $('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
+            var tx = wallet.createTransaction(destination, amount, passphrase);
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            if (!tx){
+                configs.rawtx = null;
+                $('#commitTx').html("");
+            }else{
+                configs.rawtx = tx;
+                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+                $('#rawtx').html(tx.toString());
+                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+            }
+        }
+    }
+    /**
+     *
+     */
+    htmlCreateInvoicePayment(){
+        configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null) {showError("WalletNULL", 2);}
         else {
-			if (configs.rawtx == null){	showError("SendTxNull", 1);	} else {
-				(async () => {
-					var txhash = await backend.api('sendtx', {'address':configs.rawtx.toString()});
-					if (typeof txhash === 'undifined') {
-						configs.rawtx = null;
-						$('#rawtx').html("ERROR: cannot send tx!");
-					}
-					else {
-						$('#rawtx').html(txhash.result);
-						showError("SendTxCommited", 0);
-					}
-				})();
-			}
-		}
-	}	
-	/**
-	 * send Coin from Alice to Bob
-	 */
-	htmlUISendCoin(){
-		$('#SendcoinTx').html("");
-		ui_config.nav_tab = 1;
-		$('#SendcoinTx').html(
-			"<div id=\"sendcoin\">" +
-			"<p><form style=\"heigh:50px\">" +
-			  "<div class=\"multiselect\">" +
-				"<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
-				  "<select>" +
-					"<option>Coin control</option>" +
-				  "</select>" +
-				  "<div class=\"overSelect\"></div>" +
-				"</div>" +
-				"<div id=\"coincontrol\"></div>" +
-			  "</div>" +
-			"</form></p>" +
-			"<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN" +
-			"<p>Destination: <input id=\"txDestination\" type=\"text\" size=\"34\" placeholder=\"SIN address format\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputAddress(event);\"/></p>" +
-			"<p>Amount: <input id=\"txAmount\" type=\"number\" size=\"15\" placeholder=\"Example: 0.5\"/><button type=\"button\" id=\"txAutoselect\" onclick=\"ui.htmlUpdateCoinControlFromAmount(event)\">Auto select coins</button></p>" +
-			"<p>Fee: <b id=\"txFee\"></b></p>" +
-			"<p id=\"passphrase\"></p>" +
-			"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
-			"<p id=\"txCreate\"></p>" +
-			"<p>Transaction: <div id=\"rawtx\"></div></p>" +
-			"<p id=\"commitTx\"></p>" +
-		    "</div>"
-		);
-	}
-	/**
-	 * send invoice payment
-	 */
-	htmlUISendInvoicePayment(){
-		$('#InvoicePayment').html("");
-		ui_config.nav_tab = 2;
-		$('#InvoicePayment').html(
-			"<div id=\"invoicepayment\">" +
-			"<p><form style=\"heigh:50px\">" +
-			  "<div class=\"multiselect\">" +
-				"<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
-				  "<select>" +
-					"<option>Coin control</option>" +
-				  "</select>" +
-				  "<div class=\"overSelect\"></div>" +
-				"</div>" +
-				"<div id=\"coincontrol\"></div>" +
-			  "</div>" +
-			"</form></p>" +
-			"<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN" +
-			"<p>Merchant: <input id=\"txDestination\" type=\"text\" size=\"34\" placeholder=\"SIN address format\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputAddress(event);\"/></p>" +
-			"<p>Invoice: <input id=\"txInvoiceInfo\" type=\"text\" size=\"34\" placeholder=\"ClientId;Invoice's number\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputInvoiceInfo(event);\"/></p>" +
-			"<p>Amount: <input id=\"txAmount\" type=\"number\" size=\"15\" placeholder=\"Example: 0.5\"/><button type=\"button\" id=\"txAutoselect\" onclick=\"ui.htmlUpdateCoinControlFromAmount(event)\">Auto select coins</button></p>" +
-			"<p>Fee: <b id=\"txFee\"></b></p>" +
-			"<p id=\"passphrase\"></p>" +
-			"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
-			"<p id=\"txCreate\"></p>" +
-			"<p>Transaction: <div id=\"rawtx\"></div></p>" +
-			"<p id=\"commitTx\"></p>" +
-		    "</div>"
-		);
-	}
-	/**
-	 * send Vote for SIP
-	 */
-	htmlUIVote(){
-		$('#VoteTx').html("");
-		ui_config.nav_tab = 3;
-		$('#VoteTx').html(
-			"<div id=\"vote\">" +
-			"<p><form style=\"heigh:50px\">" +
-			  "<div class=\"multiselect\">" +
-				"<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
-				  "<select>" +
-					"<option>Coin control</option>" +
-				  "</select>" +
-				  "<div class=\"overSelect\"></div>" +
-				"</div>" +
-				"<div id=\"coincontrol\"></div>" +
-			  "</div>" +
-			"</form></p>" +
-			"<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN / Vote value: <b style=\"color:green;\">" + configs.voteAmount + "</b> SIN</p>" +
-			"<p>ProposalId: <input id=\"txProposalId\" type=\"number\" size=\"10\" placeholder=\"SIN Proposal Id\" onchange=\"ui.htmlCheckInputProposalFormat(event);\"/></p>" +
-			"<p>Opinion: <input id=\"txOpinion\" type=\"text\" size=\"5\" placeholder=\"Yes or No\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputOpinion(event);\"/></p>" +
-			"<p id=\"passphrase\"></p>" +
-			"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
-			"<p id=\"txCreate\"></p>" +
-			"<p>Transaction: <div id=\"rawtx\"></div></p>" +
-			"<p id=\"commitTx\"></p>" +
-			"</div>"
-		);
-		this.htmlUpdateCoinControlFromAmount(configs.voteAmount);
-	}
-	/**
-	 * BurnFund to create node
-	 */
-	htmlUIBurnFundNode(){
-		$('#BurnFundNodeTx').html("");
-		ui_config.nav_tab = 4;
-		$('#BurnFundNodeTx').html("coming soon...");
-	}
-	/**
-	 * Update Metadata of node
-	 */
-	htmlUIUpdateMeatdataNode(){
-		$('#UpdateMetadataTx').html("");
-		ui_config.nav_tab = 5;
-		$('#UpdateMetadataTx').html("coming soon...");
-	}
-	htmlUIChangeRewardAddress(){
-		$('#ChangeRewardAddress').html("");
-		ui_config.nav_tab = 6;
-		$('#ChangeRewardAddress').html("coming soon...");
-	}
-	htmlUISendData(){
-		$('#SendData').html("");
-		ui_config.nav_tab = 7;
-		$('#SendData').html("coming soon...");
-	}
-	htmlUIHistorical(){
-		$('#Historical').html("");
-		ui_config.nav_tab = 8;
-		$('#Historical').html("coming soon...");
-	}
-	/**
-	 * UI Control
-	 */
-	htmlOpenTab(evt, itemName) {
-	    // Declare all variables
-	    var i, tabcontent, tablinks;
-	    //Get all elements with class="tabcontent" and remove the content
-	    if (wallet != null){
-		    $(".tabcontent").empty(); 
-		    wallet.unselectedCoin();
-	    }
-	    // Get all elements with class="tabcontent" and hide them
-	    tabcontent = $(".tabcontent");
-	    for (i = 0; i < tabcontent.length; i++) {
-		    tabcontent[i].style.display = "none";
-	    }
-	    // Get all elements with class="tablinks" and remove the class "active"
-	    tablinks = $(".tablinks");
-	    for (i = 0; i < tablinks.length; i++) {
-		    tablinks[i].className = tablinks[i].className.replace(" active", "");
-	    }
-	    // Show the current tab, and add an "active" class to the button that opened the tab
-	    document.getElementById(itemName).style.display = "block";
-	    evt.currentTarget.className += " active";
-	    if (itemName == "SendcoinTx" && wallet != null){this.htmlUISendCoin();}
-	    if (itemName == "InvoicePayment" && wallet != null){this.htmlUISendInvoicePayment();}
-	    if (itemName == "VoteTx" && wallet != null){this.htmlUIVote();}
-	    if (itemName == "BurnFundNodeTx" && wallet != null){this.htmlUIBurnFundNode();}
-	    if (itemName == "UpdateMetadataTx" && wallet != null){this.htmlUIUpdateMeatdataNode();}
-	    if (itemName == "ChangeRewardAddress" && wallet != null){this.htmlUIChangeRewardAddress();}
-	    if (itemName == "SendData" && wallet != null){this.htmlUISendData();}
-	    if (itemName == "Historical" && wallet != null){this.htmlUIHistorical();}
-	}
+            var destination = $('#txDestination').val();
+            var amount = $('#txAmount').val();
+            var invoiceInfo = $('#txInvoiceInfo').val();
+            var passphrase = $('#txPassphrase').val();
+            $('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
+            var tx = wallet.createInvoicePayment(destination, amount, invoiceInfo, passphrase);
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            if (!tx){
+                configs.rawtx = null;
+                $('#commitTx').html("");
+            }else{
+                configs.rawtx = tx;
+                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+                $('#rawtx').html(tx.toString());
+                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+            }
+        }
+    }
+    /**
+     * create Vote
+     */
+    htmlCreateVote(){
+        configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null) {showError("WalletNULL", 2);}
+        else {
+            var passphrase = $('#txPassphrase').val();
+            var opinion = $('#txOpinion').val();
+            var nOpinion = 0;
+            var proposal = $('#txProposalId').val();
+            var nProposalId = parseFloat(proposal);
+            
+            if (opinion.trim().trim().toUpperCase() == 'YES'){nOpinion=1;}
+            else if(opinion.trim().trim().toUpperCase() == 'NO'){nOpinion=0;}
+            else{
+                showError("ProposalOpinionKO", 2);
+                return false;
+            }
+            
+            if ( 10000000 > nProposalId || nProposalId > 99999999){
+                showError("ProposalFormatKO", 2);
+                return false;
+            }
+            
+            $('#rawtx').html("Creating a vote and send to " + configs.sinBurnAddress + " " + configs.voteAmount + " SIN");
+            var tx = wallet.createVote(nProposalId, nOpinion, passphrase);
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            if (!tx){
+                configs.rawtx = null;
+                $('#commitTx').html("");
+            }else{
+                configs.rawtx = tx;
+                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+                $('#rawtx').html(tx.toString());
+                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+            }
+        }
+    }
+    /**
+     * button send transaction is clicked
+     *
+     */
+    htmlSendTransaction(){
+        $('#commitTx').html("");
+        if (wallet == null) {showError("WalletNULL", 2); }
+        else {
+            if (configs.rawtx == null){    showError("SendTxNull", 1);    } else {
+                (async () => {
+                    var txhash = await backend.api('sendtx', {'address':configs.rawtx.toString()});
+                    if (typeof txhash === 'undifined') {
+                        configs.rawtx = null;
+                        $('#rawtx').html("ERROR: cannot send tx!");
+                    }
+                    else {
+                        $('#rawtx').html(txhash.result);
+                        showError("SendTxCommited", 0);
+                    }
+                })();
+            }
+        }
+    }    
+    /**
+     * send Coin from Alice to Bob
+     */
+    htmlUISendCoin(){
+        $('#SendcoinTx').html("");
+        ui_config.nav_tab = 1;
+        $('#SendcoinTx').html(
+            "<div id=\"sendcoin\">" +
+            "<p><form style=\"heigh:50px\">" +
+              "<div class=\"multiselect\">" +
+                "<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
+                  "<select>" +
+                    "<option>Coin control</option>" +
+                  "</select>" +
+                  "<div class=\"overSelect\"></div>" +
+                "</div>" +
+                "<div id=\"coincontrol\"></div>" +
+              "</div>" +
+            "</form></p>" +
+            "<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN" +
+            "<p>Destination: <input id=\"txDestination\" type=\"text\" size=\"34\" placeholder=\"SIN address format\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputAddress(event);\"/></p>" +
+            "<p>Amount: <input id=\"txAmount\" type=\"number\" size=\"15\" placeholder=\"Example: 0.5\"/><button type=\"button\" id=\"txAutoselect\" onclick=\"ui.htmlUpdateCoinControlFromAmount(event)\">Auto select coins</button></p>" +
+            "<p>Fee: <b id=\"txFee\"></b></p>" +
+            "<p id=\"passphrase\"></p>" +
+            "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
+            "<p id=\"txCreate\"></p>" +
+            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p id=\"commitTx\"></p>" +
+            "</div>"
+        );
+    }
+    /**
+     * send invoice payment
+     */
+    htmlUISendInvoicePayment(){
+        $('#InvoicePayment').html("");
+        ui_config.nav_tab = 2;
+        $('#InvoicePayment').html(
+            "<div id=\"invoicepayment\">" +
+            "<p><form style=\"heigh:50px\">" +
+              "<div class=\"multiselect\">" +
+                "<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
+                  "<select>" +
+                    "<option>Coin control</option>" +
+                  "</select>" +
+                  "<div class=\"overSelect\"></div>" +
+                "</div>" +
+                "<div id=\"coincontrol\"></div>" +
+              "</div>" +
+            "</form></p>" +
+            "<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN" +
+            "<p>Merchant: <input id=\"txDestination\" type=\"text\" size=\"34\" placeholder=\"SIN address format\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputAddress(event);\"/></p>" +
+            "<p>Invoice: <input id=\"txInvoiceInfo\" type=\"text\" size=\"34\" placeholder=\"ClientId;Invoice's number\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputInvoiceInfo(event);\"/></p>" +
+            "<p>Amount: <input id=\"txAmount\" type=\"number\" size=\"15\" placeholder=\"Example: 0.5\"/><button type=\"button\" id=\"txAutoselect\" onclick=\"ui.htmlUpdateCoinControlFromAmount(event)\">Auto select coins</button></p>" +
+            "<p>Fee: <b id=\"txFee\"></b></p>" +
+            "<p id=\"passphrase\"></p>" +
+            "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
+            "<p id=\"txCreate\"></p>" +
+            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p id=\"commitTx\"></p>" +
+            "</div>"
+        );
+    }
+    /**
+     * send Vote for SIP
+     */
+    htmlUIVote(){
+        $('#VoteTx').html("");
+        ui_config.nav_tab = 3;
+        $('#VoteTx').html(
+            "<div id=\"vote\">" +
+            "<p><form style=\"heigh:50px\">" +
+              "<div class=\"multiselect\">" +
+                "<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
+                  "<select>" +
+                    "<option>Coin control</option>" +
+                  "</select>" +
+                  "<div class=\"overSelect\"></div>" +
+                "</div>" +
+                "<div id=\"coincontrol\"></div>" +
+              "</div>" +
+            "</form></p>" +
+            "<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN / Vote value: <b style=\"color:green;\">" + configs.voteAmount + "</b> SIN</p>" +
+            "<p>ProposalId: <input id=\"txProposalId\" type=\"number\" size=\"10\" placeholder=\"SIN Proposal Id\" onchange=\"ui.htmlCheckInputProposalFormat(event);\"/></p>" +
+            "<p>Opinion: <input id=\"txOpinion\" type=\"text\" size=\"5\" placeholder=\"Yes or No\" accept=\"text/plain\" onchange=\"ui.htmlCheckInputOpinion(event);\"/></p>" +
+            "<p>Fee: <b id=\"txFee\"></b></p>" +
+            "<p id=\"passphrase\"></p>" +
+            "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
+            "<p id=\"txCreate\"></p>" +
+            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p id=\"commitTx\"></p>" +
+            "</div>"
+        );
+        this.htmlUpdateCoinControlFromAmount(configs.voteAmount);
+    }
+    /**
+     * BurnFund to create node
+     */
+    htmlUIBurnFundNode(){
+        $('#BurnFundNodeTx').html("");
+        ui_config.nav_tab = 4;
+        $('#BurnFundNodeTx').html("coming soon...");
+    }
+    /**
+     * Update Metadata of node
+     */
+    htmlUIUpdateMeatdataNode(){
+        $('#UpdateMetadataTx').html("");
+        ui_config.nav_tab = 5;
+        $('#UpdateMetadataTx').html("coming soon...");
+    }
+    htmlUIChangeRewardAddress(){
+        $('#ChangeRewardAddress').html("");
+        ui_config.nav_tab = 6;
+        $('#ChangeRewardAddress').html("coming soon...");
+    }
+    htmlUISendData(){
+        $('#SendData').html("");
+        ui_config.nav_tab = 7;
+        $('#SendData').html("coming soon...");
+    }
+    htmlUIHistorical(){
+        $('#Historical').html("");
+        ui_config.nav_tab = 8;
+        $('#Historical').html("coming soon...");
+    }
+    /**
+     * UI Control
+     */
+    htmlOpenTab(evt, itemName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+        //Get all elements with class="tabcontent" and remove the content
+        if (wallet != null){
+            $(".tabcontent").empty(); 
+            wallet.unselectedCoin();
+            $('#error').hide();
+        }
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = $(".tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = $(".tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(itemName).style.display = "block";
+        evt.currentTarget.className += " active";
+        if (itemName == "SendcoinTx" && wallet != null){this.htmlUISendCoin();}
+        if (itemName == "InvoicePayment" && wallet != null){this.htmlUISendInvoicePayment();}
+        if (itemName == "VoteTx" && wallet != null){this.htmlUIVote();}
+        if (itemName == "BurnFundNodeTx" && wallet != null){this.htmlUIBurnFundNode();}
+        if (itemName == "UpdateMetadataTx" && wallet != null){this.htmlUIUpdateMeatdataNode();}
+        if (itemName == "ChangeRewardAddress" && wallet != null){this.htmlUIChangeRewardAddress();}
+        if (itemName == "SendData" && wallet != null){this.htmlUISendData();}
+        if (itemName == "Historical" && wallet != null){this.htmlUIHistorical();}
+    }
 }
 //Declaration of global variable UI
 ui = new UI();
@@ -654,27 +656,27 @@ class WebWallet {
         this.config = Object.assign(defaults, configs, options);
         this.coinscontrol = [];
         this.coinscontrol_selected = [];
-		this.coinscontrol_selected_detail = [];
+        this.coinscontrol_selected_detail = [];
         this.balance = 0;
         (async () => {
-		    try{
-				this.coinscontrol = await backend.api('utxo', {'address':this.config.address});
-				if (typeof this.coinscontrol === 'undifined') {
-					showError("WalletBalanceKO", 2);
-				}
-				else {
-					this.balance = this.calculBalance(this.coinscontrol);
-					ui.htmlUpdate('balance', this.balance);
-				}
-			} catch(e){
-				showError("WalletBalanceKO", 2);
-			}
+            try{
+                this.coinscontrol = await backend.api('utxo', {'address':this.config.address});
+                if (typeof this.coinscontrol === 'undifined') {
+                    showError("WalletBalanceKO", 2);
+                }
+                else {
+                    this.balance = this.calculBalance(this.coinscontrol);
+                    ui.htmlUpdate('balance', this.balance);
+                }
+            } catch(e){
+                showError("WalletBalanceKO", 2);
+            }
         })();
     }
-	init(){
-		this.coinscontrol = [];
+    init(){
+        this.coinscontrol = [];
         this.coinscontrol_selected = [];
-		this.coinscontrol_selected_detail = [];
+        this.coinscontrol_selected_detail = [];
         this.balance = 0;
         (async () => {
             this.coinscontrol = await backend.api('utxo', {'address':this.config.address});
@@ -686,7 +688,7 @@ class WebWallet {
                 ui.htmlUpdate('balance', this.balance);
             }
         })();
-	}
+    }
     /**
      * calcul total of balance
      * @param: 
@@ -712,9 +714,9 @@ class WebWallet {
     getCoins(){
         return this.coinscontrol;
     }
-	getCoinsControlSelected(){
-		return this.coinscontrol_selected;
-	}
+    getCoinsControlSelected(){
+        return this.coinscontrol_selected;
+    }
     /**
      * coins selected from UI
      * @param: {String} txid
@@ -722,7 +724,7 @@ class WebWallet {
     coinsControlSelected(txid){
         var txinfo = txid.split("-");
         var txexist = false;
-		var tx = null;
+        var tx = null;
         if (typeof txinfo === 'undefined' || txinfo.length != 2 || txinfo[0].length != 64){return false;}
         for (var i=0; i < this.coinscontrol.length; i++){
             if(this.coinscontrol[i].txid == txinfo[0] && this.coinscontrol[i].vout == txinfo[1]){
@@ -733,243 +735,243 @@ class WebWallet {
 
         if(txexist){
             var index = this.coinscontrol.indexOf(tx);
-			var indexSelected = this.coinscontrol_selected.indexOf(tx);
-			if (indexSelected == -1) {this.coinscontrol_selected.push(tx);}
-			else{this.coinscontrol_selected.splice(indexSelected, 1);}
+            var indexSelected = this.coinscontrol_selected.indexOf(tx);
+            if (indexSelected == -1) {this.coinscontrol_selected.push(tx);}
+            else{this.coinscontrol_selected.splice(indexSelected, 1);}
         } else {
             showError("WalletNULL", 2);
         }
     }
-	/**
-	 * remove selected coins
-	 */
-	unselectedCoin(){
-		this.coinscontrol_selected = [];
-	}
-	
+    /**
+     * remove selected coins
+     */
+    unselectedCoin(){
+        this.coinscontrol_selected = [];
+    }
+    
     /**
      * Automatic select coins for amount. All control of amount was done in previous step.
-     * we are sure that amount	is between 0 and balance of wallet. 
+     * we are sure that amount    is between 0 and balance of wallet. 
      * @param: {Number} amount
      */
     coinsControlSelectForAmount(amount){
-		this.coinscontrol_selected = [];
-		if (amount == 0 || amount == null || amount > this.balance){
-			return false;
-		} else {
-			for (var i=0; i < this.coinscontrol.length; i++){
-				var tx = this.coinscontrol[i];
-				this.coinscontrol_selected.push(tx);
-				if (this.calculBalance(this.coinscontrol_selected) >= amount){break;}
-			}
-			return true;
-		}
-	}
-	/**
-	 * get information about Transactions in selected list of coin control
-	 */
-	async coinsControlVerifyUTXO(){
-	    if (this.coinscontrol_selected.length == 0){
-		    showError("CoinControlNULL", 1);
-			return false;
-		} else {
-			showError("CoinControlVerifying", 0);
-			this.coinscontrol_selected_detail = [];
-			var verified = 0;
-			for (var i=0; i < this.coinscontrol_selected.length; i++){
-			    try{
-					var tx = await backend.api('tx', {'address':this.coinscontrol_selected[i].txid});
-					if (typeof tx === 'undefined' || tx.vout.length > 0){
-						for (var j=0; j < tx.vout.length; j++){
-							if (tx.vout[j].n == this.coinscontrol_selected[i].vout){
-								var txinfo = {txid: this.coinscontrol_selected[i].txid, vout: tx.vout[j].n, address: tx.vout[j].scriptPubKey.addresses[0], script:tx.vout[j].scriptPubKey.hex}
-								this.coinscontrol_selected_detail.push(txinfo);
-								verified++;
-							}
-						}
-					}
-				} catch(e) {
-					showError("CoinControlVerifyKO", 2);
-					return false;
-				}
-			}
-			if (verified == this.coinscontrol_selected.length){
-				showError("CoinControlVerifyOK", 0);
-				return true;
-			} else {
-				showError("CoinControlVerifyKO", 2);
-				return false;
-			}
-		}
-	}
-	/**
-	 * create a transaction
-	 * @param {String} destination
-	 * @param {Number} amount
-	 * @param {String} passphrase
-	 * @return {Transaction/boolean}
-	 */
-	createTransaction(destination, amount, passphrase){
-	    var nAmount = parseFloat(amount);
-		if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
-		if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
-		if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
-		if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
-		if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
-		if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
+        this.coinscontrol_selected = [];
+        if (amount == 0 || amount == null || amount > this.balance){
+            return false;
+        } else {
+            for (var i=0; i < this.coinscontrol.length; i++){
+                var tx = this.coinscontrol[i];
+                this.coinscontrol_selected.push(tx);
+                if (this.calculBalance(this.coinscontrol_selected) >= amount){break;}
+            }
+            return true;
+        }
+    }
+    /**
+     * get information about Transactions in selected list of coin control
+     */
+    async coinsControlVerifyUTXO(){
+        if (this.coinscontrol_selected.length == 0){
+            showError("CoinControlNULL", 1);
+            return false;
+        } else {
+            showError("CoinControlVerifying", 0);
+            this.coinscontrol_selected_detail = [];
+            var verified = 0;
+            for (var i=0; i < this.coinscontrol_selected.length; i++){
+                try{
+                    var tx = await backend.api('tx', {'address':this.coinscontrol_selected[i].txid});
+                    if (typeof tx === 'undefined' || tx.vout.length > 0){
+                        for (var j=0; j < tx.vout.length; j++){
+                            if (tx.vout[j].n == this.coinscontrol_selected[i].vout){
+                                var txinfo = {txid: this.coinscontrol_selected[i].txid, vout: tx.vout[j].n, address: tx.vout[j].scriptPubKey.addresses[0], script:tx.vout[j].scriptPubKey.hex}
+                                this.coinscontrol_selected_detail.push(txinfo);
+                                verified++;
+                            }
+                        }
+                    }
+                } catch(e) {
+                    showError("CoinControlVerifyKO", 2);
+                    return false;
+                }
+            }
+            if (verified == this.coinscontrol_selected.length){
+                showError("CoinControlVerifyOK", 0);
+                return true;
+            } else {
+                showError("CoinControlVerifyKO", 2);
+                return false;
+            }
+        }
+    }
+    /**
+     * create a transaction
+     * @param {String} destination
+     * @param {Number} amount
+     * @param {String} passphrase
+     * @return {Transaction/boolean}
+     */
+    createTransaction(destination, amount, passphrase){
+        var nAmount = parseFloat(amount);
+        if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
+        if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
+        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
+        if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
+        if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
+        if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
 
-		var utxos = [];
-		if (this.coinscontrol_selected.length > 0){
-		    for (var i=0; i<this.coinscontrol_selected.length; i++){
-			    for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
-					if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
-					    this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
-						var utxo = {
-							"txId": this.coinscontrol_selected[i].txid,
-							"outputIndex": this.coinscontrol_selected[i].vout,
-							"satoshis" : this.coinscontrol_selected[i].satoshis,
-							"address": this.coinscontrol_selected_detail[j].address,
-							"script": this.coinscontrol_selected_detail[j].script
-						}
-						utxos.push(utxo);
-					}
-				}
-			}
-		}
+        var utxos = [];
+        if (this.coinscontrol_selected.length > 0){
+            for (var i=0; i<this.coinscontrol_selected.length; i++){
+                for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
+                    if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
+                        this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
+                        var utxo = {
+                            "txId": this.coinscontrol_selected[i].txid,
+                            "outputIndex": this.coinscontrol_selected[i].vout,
+                            "satoshis" : this.coinscontrol_selected[i].satoshis,
+                            "address": this.coinscontrol_selected_detail[j].address,
+                            "script": this.coinscontrol_selected_detail[j].script
+                        }
+                        utxos.push(utxo);
+                    }
+                }
+            }
+        }
 
-		var Unit = bitcore.Unit;
-		var value = Unit.fromBTC(nAmount).toSatoshis();
-		try {
-		    //SIN fee change 100000 -> 10000000
-			var transaction = new bitcore.Transaction()
-			   .from(utxos)
-			   .to(destination, value)
-			   .feePerKb(10000000)
-			   .change(this.config.address.toString())
-			   .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
-			   ;
-			return transaction;
-		} catch(e) {
-			alert(e)
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			return false;
-		}
-	}
-	/**
-	 * create invoice payment
-	 * @param {String} destination
-	 * @param {Number} amount
-	 * @param {String} invoiceInfo
-	 * @param {String} passphrase
-	 * @return {Transaction/boolean}
-	 */
-	createInvoicePayment(destination, amount, invoiceInfo, passphrase){
-	    var nAmount = parseFloat(amount);
-		if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
-		if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
-		if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
-		if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
-		if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
-		if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
-		if (invoiceInfo.length == 0){showError("InvoiceInfoFormatNull", 2); return false;}
-		if (invoiceInfo.length > 80){showError("InvoiceInfoFormatKO", 2); return false;}
-		var regex = /^[a-zA-Z0-9;!@#\$%\^\&*\)\(+=._-]+$/g;
-		if(!regex.test(invoiceInfo)){showError("InvoiceInfoFormatKO", 2); return false;}
+        var Unit = bitcore.Unit;
+        var value = Unit.fromBTC(nAmount).toSatoshis();
+        try {
+            //SIN fee change 100000 -> 10000000
+            var transaction = new bitcore.Transaction()
+               .from(utxos)
+               .to(destination, value)
+               .feePerKb(10000000)
+               .change(this.config.address.toString())
+               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
+               ;
+            return transaction;
+        } catch(e) {
+            alert(e)
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            return false;
+        }
+    }
+    /**
+     * create invoice payment
+     * @param {String} destination
+     * @param {Number} amount
+     * @param {String} invoiceInfo
+     * @param {String} passphrase
+     * @return {Transaction/boolean}
+     */
+    createInvoicePayment(destination, amount, invoiceInfo, passphrase){
+        var nAmount = parseFloat(amount);
+        if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
+        if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
+        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
+        if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
+        if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
+        if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
+        if (invoiceInfo.length == 0){showError("InvoiceInfoFormatNull", 2); return false;}
+        if (invoiceInfo.length > 80){showError("InvoiceInfoFormatKO", 2); return false;}
+        var regex = /^[a-zA-Z0-9;!@#\$%\^\&*\)\(+=._-]+$/g;
+        if(!regex.test(invoiceInfo)){showError("InvoiceInfoFormatKO", 2); return false;}
 
-		var utxos = [];
-		if (this.coinscontrol_selected.length > 0){
-		    for (var i=0; i<this.coinscontrol_selected.length; i++){
-			    for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
-					if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
-					    this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
-						var utxo = {
-							"txId": this.coinscontrol_selected[i].txid,
-							"outputIndex": this.coinscontrol_selected[i].vout,
-							"satoshis" : this.coinscontrol_selected[i].satoshis,
-							"address": this.coinscontrol_selected_detail[j].address,
-							"script": this.coinscontrol_selected_detail[j].script
-						}
-						utxos.push(utxo);
-					}
-				}
-			}
-		}
+        var utxos = [];
+        if (this.coinscontrol_selected.length > 0){
+            for (var i=0; i<this.coinscontrol_selected.length; i++){
+                for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
+                    if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
+                        this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
+                        var utxo = {
+                            "txId": this.coinscontrol_selected[i].txid,
+                            "outputIndex": this.coinscontrol_selected[i].vout,
+                            "satoshis" : this.coinscontrol_selected[i].satoshis,
+                            "address": this.coinscontrol_selected_detail[j].address,
+                            "script": this.coinscontrol_selected_detail[j].script
+                        }
+                        utxos.push(utxo);
+                    }
+                }
+            }
+        }
 
-		var Unit = bitcore.Unit;
-		var value = Unit.fromBTC(nAmount).toSatoshis();
-		try {
-		    //SIN fee change 100000 -> 10000000
-			var transaction = new bitcore.Transaction()
-			   .from(utxos)
-			   .to(destination, value)
-			   .feePerKb(10000000)
-			   .change(this.config.address.toString())
-			   .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
-			   ;
-			transaction.addBurnData(destination, invoiceInfo, 0);
-			return transaction;
-		} catch(e) {
-			alert(e)
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			return false;
-		}
-	}
-	/**
-	 * create vote
-	 * @param {String} nProposalId
-	 * @param {String} nOpinion [yes, no]
-	 * @param {String} passphrase
-	 * @return {Transaction/boolean}
-	 */
-	createVote(nProposalId, nOpinion, passphrase){
-		if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
-		if (configs.voteAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
-		if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
+        var Unit = bitcore.Unit;
+        var value = Unit.fromBTC(nAmount).toSatoshis();
+        try {
+            //SIN fee change 100000 -> 20000000: double fee to make sure tx will be send
+            var transaction = new bitcore.Transaction()
+               .from(utxos)
+               .to(destination, value)
+               .feePerKb(20000000)
+               .change(this.config.address.toString())
+               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
+               ;
+            transaction.addBurnData(destination, invoiceInfo, 0);
+            return transaction;
+        } catch(e) {
+            alert(e)
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            return false;
+        }
+    }
+    /**
+     * create vote
+     * @param {String} nProposalId
+     * @param {String} nOpinion [yes, no]
+     * @param {String} passphrase
+     * @return {Transaction/boolean}
+     */
+    createVote(nProposalId, nOpinion, passphrase){
+        if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
+        if (configs.voteAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
+        if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
 
-		var utxos = [];
-		if (this.coinscontrol_selected.length > 0){
-		    for (var i=0; i<this.coinscontrol_selected.length; i++){
-			    for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
-					if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
-					    this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
-						var utxo = {
-							"txId": this.coinscontrol_selected[i].txid,
-							"outputIndex": this.coinscontrol_selected[i].vout,
-							"satoshis" : this.coinscontrol_selected[i].satoshis,
-							"address": this.coinscontrol_selected_detail[j].address,
-							"script": this.coinscontrol_selected_detail[j].script
-						}
-						utxos.push(utxo);
-					}
-				}
-			}
-		}
+        var utxos = [];
+        if (this.coinscontrol_selected.length > 0){
+            for (var i=0; i<this.coinscontrol_selected.length; i++){
+                for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
+                    if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
+                        this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
+                        var utxo = {
+                            "txId": this.coinscontrol_selected[i].txid,
+                            "outputIndex": this.coinscontrol_selected[i].vout,
+                            "satoshis" : this.coinscontrol_selected[i].satoshis,
+                            "address": this.coinscontrol_selected_detail[j].address,
+                            "script": this.coinscontrol_selected_detail[j].script
+                        }
+                        utxos.push(utxo);
+                    }
+                }
+            }
+        }
 
-		var Unit = bitcore.Unit;
-		var value = Unit.fromBTC(configs.voteAmount).toSatoshis();
+        var Unit = bitcore.Unit;
+        var value = Unit.fromBTC(configs.voteAmount).toSatoshis();
 
-		try {
-		    //SIN fee change 100000 -> 10000000
-			var transaction = new bitcore.Transaction()
-			   .from(utxos)
-			   .addBurnData(configs.sinGovernanceAddress, nProposalId+""+nOpinion, value)
-			   .feePerKb(10000000)
-			   .change(this.config.address.toString())
-			   .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
-			   ;
-			return transaction;
-		} catch(e) {
-			alert(e)
-			passphrase = '';
-			$('#passphrase').html("");
-			$('#txCreate').html("");
-			return false;
-		}
-	}
+        try {
+            //SIN fee change 100000 -> 20000000: double fee to make sure tx will be send
+            var transaction = new bitcore.Transaction()
+               .from(utxos)
+               .addBurnData(configs.sinGovernanceAddress, nProposalId+""+nOpinion, value)
+               .feePerKb(20000000)
+               .change(this.config.address.toString())
+               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
+               ;
+            return transaction;
+        } catch(e) {
+            alert(e)
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            return false;
+        }
+    }
 }
 
 /**
@@ -995,8 +997,8 @@ function openWalletForAddress(event) {
         showError("WalletOpenLevel1", 0);
         $('#address').html(configs.address.toString());
         $('#appinput').hide();
-		$('#userinfo').show();
-		ui.htmlUISendCoin();
+        $('#userinfo').show();
+        ui.htmlUISendCoin();
     }
 }
 
@@ -1038,8 +1040,8 @@ var openWalletFromKeyJSONFile = function(event) {
                 showError("WalletOpenLevel2", 0);
                 $('#address').html(configs.address.toString());
                 $('#appinput').hide();
-				$('#userinfo').show();
-				ui.htmlUISendCoin();
+                $('#userinfo').show();
+                ui.htmlUISendCoin();
             }
         } catch (e) {
             showError("ReadJSONError", 2);
