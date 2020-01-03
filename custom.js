@@ -472,9 +472,9 @@ class UI {
             if (configs.rawtx == null){    showError("SendTxNull", 1);    } else {
                 (async () => {
                     var txhash = await backend.api('sendtx', {'address':configs.rawtx.toString()});
-                    if (typeof txhash === 'undifined') {
+                    if (typeof txhash.result === 'undefined' || typeof txhash.error === 'string') {
                         configs.rawtx = null;
-                        $('#rawtx').html("ERROR: cannot send tx!");
+                        $('#rawtx').html("ERROR: cannot send tx! " + txhash.error);
                     }
                     else {
                         $('#rawtx').html(txhash.result);
@@ -903,14 +903,14 @@ class WebWallet {
         var value = Unit.fromBTC(nAmount).toSatoshis();
         try {
             //SIN fee change 100000 -> 20000000: double fee to make sure tx will be send
+            //fee 10000000 = 0.1 SIN => avoid dust amount
             var transaction = new bitcore.Transaction()
                .from(utxos)
                .to(destination, value)
+               .addBurnData(destination, invoiceInfo, 0)
                .feePerKb(20000000)
                .change(this.config.address.toString())
-               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
-               ;
-            transaction.addBurnData(destination, invoiceInfo, 0);
+               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase));
             return transaction;
         } catch(e) {
             alert(e)
