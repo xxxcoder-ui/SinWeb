@@ -40,7 +40,7 @@ var configs = {
 var ui_config = {
 // coincontrol
     coincontrol_expanded: false,
-    nav_tab: 0,
+    nav_tab: 0, //when inputs are verified, button createTx will be affect to follow the nav_tab: create send coin tx, vote, payment...
 }
 
 /**
@@ -79,6 +79,8 @@ const errorMessages = {
     "InvoiceInfoFormatKO": "Invoice's information is not allowed.",
     "InvoiceInfoFormatNull": "Please use Send coin option if you don't pay a merchant.",
     "ProposalOpinionKO": "Proposal opinion must be Yes or No.",
+    "CreateMultiSigAddressKO": "Cannot create a MultiSignature address from inputs.",
+    "CreateMultiSigReadKeysKO": "Cannot read all inputs public key.",
     "SendTxNull": "Please create your transaction...",
     "SendTxCommited": "Transaction is broadcast to network with successful!",
 }
@@ -346,11 +348,11 @@ class UI {
                 alert(result);
                 if(result){
                     if (ui_config.nav_tab == 1){
-                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateTransaction()\">Create</button>");
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateTransaction()\">Create-Sign</button>");
                     } else if (ui_config.nav_tab == 2){
-                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateInvoicePayment()\">Create</button>");
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateInvoicePayment()\">Create-Sign</button>");
                     } else if (ui_config.nav_tab == 3){
-                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateVote()\">Create</button>");
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateVote()\">Create-Sign</button>");
                     } else {
                         showError("UnknownNav", 2);
                     }
@@ -461,6 +463,39 @@ class UI {
             }
         }
     }
+	/**
+	 * Create multisig address from inputs public keys
+	 */
+	htmlVerifyAndCreateMultiSigP2SHAdress(){
+	    var  publicKeys = $('#multiSigPublicKeys').val().replace(" ", "").replace(/\n|\r/g, '').trim().split(',');
+		var threshold = parseInt($('#requiredSignatures').val());
+		try {
+			var KeysArray = [];
+			for (var i=0; i < publicKeys.length; i++){
+			    var pubkey = new bitcore.PublicKey(publicKeys[i]);
+				KeysArray.push(pubkey);
+			}
+			
+			if (KeysArray.length != publicKeys.length){
+				showError("CreateMultiSigReadKeysKO", 1);
+				$('#commitTx').html("");
+			} else {
+				if (threshold <= KeysArray.length) {
+				    //var script = new bitcore.Script.buildMultisigOut(KeysArray, threshold);
+					//var address = new bitcore.Address.payingTo(script, 'livenet');
+					var address = new bitcore.Address.createMultisig(KeysArray, threshold);
+					$('#commitTx').html(threshold + "-" + KeysArray.length + ": " + address);
+					$('#error').hide();
+				} else {
+					showError("CreateMultiSigAddressKO", 2);
+				}
+			}
+		} catch(e) {
+			console.log(e);
+			showError("CreateMultiSigAddressKO", 2);
+			$('#commitTx').html("");
+		}
+	}
     /**
      * button send transaction is clicked
      *
@@ -483,7 +518,7 @@ class UI {
                 })();
             }
         }
-    }    
+    }
     /**
      * send Coin from Alice to Bob
      */
@@ -580,6 +615,20 @@ class UI {
         this.htmlUpdateCoinControlFromAmount(configs.voteAmount);
     }
     /**
+	 * create multisig address
+	 */
+	htmlUICreateMultiSig(){
+        $('#MultiSig').html("");
+        ui_config.nav_tab = 9;
+		$('#MultiSig').html(
+			"<div id=\"multiSig\">" +
+			"<textarea id=\"multiSigPublicKeys\" name=\"multiSigPublicKey\" rows=\"5\" cols=\"70\"></textarea>" +
+			"<p>Required Signatures: <input id=\"requiredSignatures\" type=\"number\" size=\"2\" onchange=\"ui.htmlCheckInputRequiredSignaturesFormat(event);\"/></p>" +
+			"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyAndCreateMultiSigP2SHAdress()\">Verify input</button></p>" +
+			"</div>"
+		);
+	}
+    /**
      * BurnFund to create node
      */
     htmlUIBurnFundNode(){
@@ -638,6 +687,7 @@ class UI {
         if (itemName == "SendcoinTx" && wallet != null){this.htmlUISendCoin();}
         if (itemName == "InvoicePayment" && wallet != null){this.htmlUISendInvoicePayment();}
         if (itemName == "VoteTx" && wallet != null){this.htmlUIVote();}
+        if (itemName == "MultiSig" && wallet != null){this.htmlUICreateMultiSig();}
         if (itemName == "BurnFundNodeTx" && wallet != null){this.htmlUIBurnFundNode();}
         if (itemName == "UpdateMetadataTx" && wallet != null){this.htmlUIUpdateMeatdataNode();}
         if (itemName == "ChangeRewardAddress" && wallet != null){this.htmlUIChangeRewardAddress();}
