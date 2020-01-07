@@ -282,7 +282,8 @@ class UI {
      */
     htmlCheckInputAddress(event){
         var input = event.target.value;
-        if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){
+        if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)
+		    && !bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash)){
             showError("DestinationAddressError", 2);
             return false;
         }else{
@@ -481,10 +482,10 @@ class UI {
 				$('#commitTx').html("");
 			} else {
 				if (threshold <= KeysArray.length) {
-				    //var script = new bitcore.Script.buildMultisigOut(KeysArray, threshold);
-					//var address = new bitcore.Address.payingTo(script, 'livenet');
+				    var script = new bitcore.Script.buildMultisigOut(KeysArray, threshold);
+					//var address = new bitcore.Address.payingTo(script, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash);
 					var address = new bitcore.Address.createMultisig(KeysArray, threshold);
-					$('#commitTx').html(threshold + "-" + KeysArray.length + ": " + address);
+					$('#commitTx').html("MultiSig Address " + threshold + "-" + KeysArray.length + ": " + address.toString());
 					$('#error').hide();
 				} else {
 					showError("CreateMultiSigAddressKO", 2);
@@ -545,7 +546,7 @@ class UI {
             "<p id=\"passphrase\"></p>" +
             "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
             "<p id=\"txCreate\"></p>" +
-            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p>Transaction: <br><textarea rows=\"5\" cols=\"80\" id=\"rawtx\"></textarea></p>" +
             "<p id=\"commitTx\"></p>" +
             "</div>"
         );
@@ -577,7 +578,7 @@ class UI {
             "<p id=\"passphrase\"></p>" +
             "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
             "<p id=\"txCreate\"></p>" +
-            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p>Transaction: <br><textarea rows=\"5\" cols=\"80\" id=\"rawtx\"></textarea></p>" +
             "<p id=\"commitTx\"></p>" +
             "</div>"
         );
@@ -608,7 +609,7 @@ class UI {
             "<p id=\"passphrase\"></p>" +
             "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
             "<p id=\"txCreate\"></p>" +
-            "<p>Transaction: <div id=\"rawtx\"></div></p>" +
+            "<p>Transaction: <br><textarea rows=\"5\" cols=\"80\"  id=\"rawtx\"></textarea></p>" +
             "<p id=\"commitTx\"></p>" +
             "</div>"
         );
@@ -865,7 +866,9 @@ class WebWallet {
         var nAmount = parseFloat(amount);
         if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
         if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
-        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
+        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)
+		&& !bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash))
+		{ showError("ImportAddressError", 2); return false;}
         if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
         if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
         if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
@@ -921,7 +924,9 @@ class WebWallet {
         var nAmount = parseFloat(amount);
         if (nAmount > this.balance) { showError("WalletAmountTooBig", 2); return false;}
         if (nAmount <= 0.01) {showError("WalletAmountTooSmall",2); return false;}
-        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){ showError("ImportAddressError", 2); return false;}
+        if (!bitcore.Address.isValid(destination, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)
+		&& !bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash))
+		{ showError("ImportAddressError", 2); return false;}
         if (this.coinscontrol_selected.length != this.coinscontrol_selected_detail.length) {showError("WalletNULL", 2);return false;}
         if (nAmount > this.calculBalance(this.coinscontrol_selected)){ showError("CoinControlSelectCoin", 2);return false;}
         if (this.config.level == 1){ showError("CreateTxKOLevel1", 2); return false;}
@@ -1029,7 +1034,9 @@ class WebWallet {
  * @param {String} address
  */ 
 function checkStringInputAddress(input){
-    if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){return false;}
+    if (!bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)
+	&& !bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash))
+	{return false;}
     configs.address = input;
     configs.status = 1;
     configs.level = 1;
@@ -1060,7 +1067,9 @@ function checkJSONInputKeyFile(input) {
     var address = bitcore.Address.fromString(input.address);
     var cipher = input.cipherTxt + ''; //conversion to String
     var salt = input.vSalt + '';
-    if (!bitcore.Address.isValid(address, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)){return false;}
+    if (!bitcore.Address.isValid(address, bitcore.Networks.livenet, bitcore.Address.PayToPublicKeyHash)
+	&& !bitcore.Address.isValid(input, bitcore.Networks.livenet, bitcore.Address.PayToScriptHash))
+	{return false;}
     if (input.rounds < 25000){return false;}
     if (cipher.length != 128){return false;}
     if (salt.length != 16){return false;}
