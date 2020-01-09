@@ -612,7 +612,7 @@
 			<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSig')"><svg class="icon"><use xlink:href="#icon-multi_identity"></use></svg> Multisignature</a></li>
 				<ul class="secnav">
 					<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSig')">MultiSig Address</a></li>
-					<li><a href="#">Create Tx</a></li>
+					<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSigTx')">MultiSig Tx</a></li>
 					<li><a href="#">Sign</a></li>
 				</ul>
 			<li><a href="#mail"><svg class="icon"><use xlink:href="#icon-mail_outline"></use></svg> BMail<div class="tag">53</div></a>
@@ -680,6 +680,11 @@
 				<p id="txVerify"><button type="button" onclick="ui.htmlVerifyAndCreateMultiSigP2SHAdress()">Verify input</button></p>
 				<p id="commitTx"></p>
 			  </p>
+			</div>
+			<div id="MultiSigTx" class="tabcontent">
+			  <h3>Multisignature Transaction</h3>
+			  <p>To send SIN to Sinovate multisig address, transaction can be create by everyone<br>
+			   and is required threshold signatures before to be broadcast in network.<br>
 			</div>
 			<div id="BurnFundNodeTx" class="tabcontent">
 			  <h3>BurnFund to create InfinityNode</h3>
