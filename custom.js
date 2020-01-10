@@ -81,6 +81,8 @@ const errorMessages = {
     "ProposalOpinionKO": "Proposal opinion must be Yes or No.",
     "CreateMultiSigAddressKO": "Cannot create a MultiSignature address from inputs.",
     "CreateMultiSigReadKeysKO": "Cannot read all inputs public key.",
+	"SignTxWithLevelKO": "Cannot try to sign a transaction with this level.",
+	"SignMultiSigRequire": "Transaction need more signature to get valid state.",
     "SendTxNull": "Please create your transaction...",
     "SendTxCommited": "Transaction is broadcast to network with successful!",
 }
@@ -361,7 +363,8 @@ class UI {
 						$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
 						showError("CreateTxOffline", 0);
                     } else if (ui_config.nav_tab == 10){
-                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateMultiSigTransaction()\">Create</button>");
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateMultiSigTransaction()\">Create-Sign</button>");
+						$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
                     } else {
                         showError("UnknownNav", 2);
                     }
@@ -370,6 +373,49 @@ class UI {
             });
         }
     }
+	/**
+	 * create the serialized transaction and verify info
+	 */
+	htmlVerifyTxInput(){
+		configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null || configs.level != 2) {showError("WalletNULL", 2);}
+        else {
+			var multiSigTxInput = JSON.parse($('#rawtxinput').val());
+			try {
+				var multiSigTx = new bitcore.Transaction(multiSigTxInput);
+				console.log(multiSigTx);
+				var outputs = multiSigTx.outputs;
+				var inputs = multiSigTx.inputs;
+
+				var outputString = "";
+				var inputString = "";
+
+				for (var i=0; i < outputs.length; i++){
+					outputString += "<div>" +outputs[i].script.toAddress().toString()+ ": " + bitcore.Unit.fromSatoshis(outputs[i].satoshis).toBTC() +"</div>";
+					outputTotal += outputs[i].satoshis;
+				}
+				
+				for (var j=0; j < inputs.length; j++){
+					inputString += "<div>" +inputs[j].script.toAddress().toString() + ": " +  bitcore.Unit.fromSatoshis(inputs[j].output.satoshis).toBTC() + "</div>";
+				}
+				
+				$('#txFee').html(bitcore.Unit.fromSatoshis(multiSigTx.getFee()).toBTC());
+				$('#txInfo').html("<div>From: " + inputString + "<br>To: " + outputString +"</div>");
+				if (ui_config.nav_tab == 11){
+                    $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlSignMultiSigTx()\">Sign</button>");
+					$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
+                }
+				configs.rawtx = multiSigTx;
+			} catch(e) {
+				alert(e);
+				configs.rawtx = null;
+				$('#rawtx').html("");
+				$('#txInfo').html("");
+			}
+		}
+	}
     /**
      * button create transaction is clicked
      */
@@ -383,23 +429,29 @@ class UI {
             var amount = $('#txAmount').val();
             var passphrase = $('#txPassphrase').val();
             $('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
-            var tx = wallet.createTransaction(destination, amount, passphrase);
-            passphrase = '';
-            $('#passphrase').html("");
-            $('#txCreate').html("");
-            if (!tx){
-                configs.rawtx = null;
-                $('#commitTx').html("");
-            }else{
-                configs.rawtx = tx;
-                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-                $('#rawtx').html(tx.toString());
-                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-            }
+			try {
+				var tx = wallet.createTransaction(destination, amount, passphrase);
+				passphrase = '';
+				$('#passphrase').html("");
+				$('#txCreate').html("");
+				if (!tx){
+					configs.rawtx = null;
+					$('#commitTx').html("");
+				}else{
+					configs.rawtx = tx;
+					$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+					$('#rawtx').html(tx.serialize());
+					$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+				}
+			} catch(e) {
+				alert(e);
+				configs.rawtx = null;
+				$('#commitTx').html("");
+			}
         }
     }
     /**
-     *
+     * create tx with attached information
      */
     htmlCreateInvoicePayment(){
         configs.rawtx == null;
@@ -407,28 +459,35 @@ class UI {
         $('#rawtx').html("");
         if (wallet == null) {showError("WalletNULL", 2);}
         else {
-            var destination = $('#txDestination').val();
-            var amount = $('#txAmount').val();
-            var invoiceInfo = $('#txInvoiceInfo').val();
-            var passphrase = $('#txPassphrase').val();
-            $('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
-            var tx = wallet.createInvoicePayment(destination, amount, invoiceInfo, passphrase);
-            passphrase = '';
-            $('#passphrase').html("");
-            $('#txCreate').html("");
-            if (!tx){
-                configs.rawtx = null;
-                $('#commitTx').html("");
-            }else{
-                configs.rawtx = tx;
-                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-                $('#rawtx').html(tx.toString());
-                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-            }
+			try{
+				var destination = $('#txDestination').val();
+				var amount = $('#txAmount').val();
+				var invoiceInfo = $('#txInvoiceInfo').val();
+				var passphrase = $('#txPassphrase').val();
+				$('#rawtx').html("Creating a transaction send to " + destination + " " + amount + " SIN");
+				var tx = wallet.createInvoicePayment(destination, amount, invoiceInfo, passphrase);
+				passphrase = '';
+				$('#passphrase').html("");
+				$('#txCreate').html("");
+				if (!tx){
+					configs.rawtx = null;
+					$('#commitTx').html("");
+				}else{
+					configs.rawtx = tx;
+					$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+					$('#rawtx').html(tx.serialize());
+					$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+				}
+			} catch (e) {
+				alert(e);
+				configs.rawtx = null;
+				$('#commitTx').html("");
+			}
         }
     }
     /**
      * create Vote
+	 * ProposalId will be changed in next step
      */
     htmlCreateVote(){
         configs.rawtx == null;
@@ -441,33 +500,38 @@ class UI {
             var nOpinion = 0;
             var proposal = $('#txProposalId').val();
             var nProposalId = parseFloat(proposal);
-            
-            if (opinion.trim().trim().toUpperCase() == 'YES'){nOpinion=1;}
-            else if(opinion.trim().trim().toUpperCase() == 'NO'){nOpinion=0;}
-            else{
-                showError("ProposalOpinionKO", 2);
-                return false;
-            }
-            
-            if ( 10000000 > nProposalId || nProposalId > 99999999){
-                showError("ProposalFormatKO", 2);
-                return false;
-            }
-            
-            $('#rawtx').html("Creating a vote and send to " + configs.sinBurnAddress + " " + configs.voteAmount + " SIN");
-            var tx = wallet.createVote(nProposalId, nOpinion, passphrase);
-            passphrase = '';
-            $('#passphrase').html("");
-            $('#txCreate').html("");
-            if (!tx){
-                configs.rawtx = null;
-                $('#commitTx').html("");
-            }else{
-                configs.rawtx = tx;
-                $('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-                $('#rawtx').html(tx.toString());
-                $('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
-            }
+            try {
+				if (opinion.trim().trim().toUpperCase() == 'YES'){nOpinion=1;}
+				else if(opinion.trim().trim().toUpperCase() == 'NO'){nOpinion=0;}
+				else{
+					showError("ProposalOpinionKO", 2);
+					return false;
+				}
+				
+				if ( 10000000 > nProposalId || nProposalId > 99999999){
+					showError("ProposalFormatKO", 2);
+					return false;
+				}
+				
+				$('#rawtx').html("Creating a vote and send to " + configs.sinBurnAddress + " " + configs.voteAmount + " SIN");
+				var tx = wallet.createVote(nProposalId, nOpinion, passphrase);
+				passphrase = '';
+				$('#passphrase').html("");
+				$('#txCreate').html("");
+				if (!tx){
+					configs.rawtx = null;
+					$('#commitTx').html("");
+				}else{
+					configs.rawtx = tx;
+					$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+					$('#rawtx').html(tx.serialize());
+					$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+				}
+			} catch (e) {
+				alert(e);
+				configs.rawtx = null;
+				$('#commitTx').html("");
+			}
         }
     }
 	/**
@@ -498,6 +562,7 @@ class UI {
 				}
 			}
 		} catch(e) {
+			alert(e);
 			showError("CreateMultiSigAddressKO", 2);
 			$('#commitTx').html("");
 		}
@@ -514,6 +579,7 @@ class UI {
             var amount = $('#txAmount').val();
 			var  publicKeys = $('#multiSigPublicKeys').val().replace(" ", "").replace(/\n|\r/g, '').trim().split(',');
 			var threshold = parseInt($('#requiredSignatures').val());
+			var passphrase = $('#txPassphrase').val();
 
 			try {
 				var KeysArray = [];
@@ -537,10 +603,9 @@ class UI {
 						}else{
 							configs.rawtx = tx;
 							$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
-							$('#rawtx').html(tx.toString());
+							$('#rawtx').html(JSON.stringify(tx.toJSON()));
 						}
 					} else {
-					    console.log("threshold is too high");
 						showError("CreateMultiSigAddressKO", 2);
 					}
 				}
@@ -550,6 +615,39 @@ class UI {
 				$('#commitTx').html("");
 			}
         }
+	}
+	/**
+	 * sign multisig transaction
+	 */
+	htmlSignMultiSigTx(){
+	    if (configs.level = 2){
+		    var passphrase = $('#txPassphrase').val();
+			try{
+				var tx = wallet.signMultiSigTx(configs.rawtx, passphrase);
+				console.log(tx);
+					passphrase = '';
+					$('#passphrase').html("");
+					console.log(tx);
+					if (!tx){
+						configs.rawtx = null;
+						$('#commitTx').html("");
+					}else{
+						configs.rawtx = tx;
+						$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+						if (tx.isFullySigned()){
+							$('#rawtx').html(tx.serialize());
+							$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendTransaction()\">Send</button>");
+						} else {
+							$('#rawtx').html(JSON.stringify(tx.toJSON()));
+							showError("SignMultiSigRequire",1);
+						}
+					}
+			} catch (e) {
+				alert(e);
+			}
+		} else {
+			showError("SignTxWithLevelKO", 1);
+		}
 	}
     /**
      * button send transaction is clicked
@@ -720,6 +818,30 @@ class UI {
             "</div>"
         );
     }
+	/**
+	 * sign transaction
+	 */
+	htmlUISignTransaction(){
+        $('#SignTx').html("");
+        ui_config.nav_tab = 11;
+		if (configs.level == 2) {
+			$('#SignTx').html(
+				"<p>Input: <br><textarea rows=\"5\" cols=\"80\" id=\"rawtxinput\"></textarea></p>" +
+				"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyTxInput()\">Verify input</button></p>" +
+				"<p>Transaction: <div id=\"txInfo\"></div></p>" +
+				"<p>Fee: <b id=\"txFee\"></b></p>" +
+				"<p id=\"passphrase\"></p>" +
+				"<p id=\"txCreate\"></p>" +
+				"<p>Signed Transaction: <br><textarea rows=\"5\" cols=\"80\" id=\"rawtx\"></textarea></p>" +
+				"<p id=\"commitTx\"></p>"
+			);
+		} else {
+			$('#SignTx').html(
+				"<p>Wallet need to be opened with Keyfile (level 2) if you want to sign a transaction.</p>"
+			);
+			showError("SignTxWithLevelKO", 1);
+		}
+	}
     /**
      * BurnFund to create node
      */
@@ -781,6 +903,7 @@ class UI {
         if (itemName == "VoteTx" && wallet != null){this.htmlUIVote();}
         if (itemName == "MultiSig" && wallet != null){this.htmlUICreateMultiSigAddress();}
         if (itemName == "MultiSigTx" && wallet != null){this.htmlUICreateMultiSigTx();}
+        if (itemName == "SignTx" && wallet != null){this.htmlUISignTransaction();}
         if (itemName == "BurnFundNodeTx" && wallet != null){this.htmlUIBurnFundNode();}
         if (itemName == "UpdateMetadataTx" && wallet != null){this.htmlUIUpdateMeatdataNode();}
         if (itemName == "ChangeRewardAddress" && wallet != null){this.htmlUIChangeRewardAddress();}
@@ -1170,6 +1293,13 @@ class WebWallet {
             return false;
         }
 	}
+	/**
+	 * sign multisigTx
+	 */
+	signMultiSigTx(transaction, passphrase){
+	    var tx = transaction.sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase));
+		return tx;
+	} 
 }
 
 /**

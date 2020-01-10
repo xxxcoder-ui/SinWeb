@@ -59,7 +59,7 @@
 		/* Style the tab content */
 		.tabcontent {
 		  display: none;
-		  /*padding: 6px 12px;*/
+		  padding: 10px;
 		  border: 1px solid #ccc;
 		  width: 100%;
 		}
@@ -602,6 +602,7 @@
 	</label>
 	<nav class="primnav">
 		<ul>
+		<!--
 			<li><a href="#dashboard"><svg class="icon"><use xlink:href="#icon-dashboard"></use></svg> Dashboard</a></li>
 			<li><a href="#"><svg class="icon"><use xlink:href="#icon-network"></use></svg> InfinityNode</a></li>
 				<ul class="secnav">
@@ -609,12 +610,13 @@
 					<li><a href="#">Update Metadata</a></li>
 					<li><a href="#">Change Reward Address</a></li>
 				</ul>
+		-->
 			<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSig')"><svg class="icon"><use xlink:href="#icon-multi_identity"></use></svg> Multisignature</a></li>
 				<ul class="secnav">
 					<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSig')">MultiSig Address</a></li>
 					<li><a class="tablinks" href="#" onclick="ui.htmlOpenTab(event, 'MultiSigTx')">MultiSig Tx</a></li>
-					<li><a href="#">Sign</a></li>
 				</ul>
+		<!--
 			<li><a href="#mail"><svg class="icon"><use xlink:href="#icon-mail_outline"></use></svg> BMail<div class="tag">53</div></a>
 				<ul class="secnav">
 					<li><a href="#inbox">Inbox</a></li>
@@ -628,6 +630,7 @@
 					<li><a href="#vSalt">vSalt</a></li>
 				</ul>
 			</li>
+		-->
 		</ul>
 	</nav>
 	<user id="user">
@@ -643,7 +646,7 @@
 				<li><a class="tab tablinks" href="#" onclick="ui.htmlOpenTab(event, 'SendcoinTx')"><svg class="svg-icon"><use xlink:href="#icon-bitcoin"></use></svg> Send</a></li>
 				<li><a class="tab tablinks" href="#" onclick="ui.htmlOpenTab(event, 'InvoicePayment')"><svg class="svg-icon"><use xlink:href="#icon-creditcard"></use></svg> Payment</a></li>
 				<li><a class="tab tablinks" href="#" onclick="ui.htmlOpenTab(event, 'VoteTx')"><svg class="svg-icon"><use xlink:href="#icon-identity"></use></svg> S.R.V vote</a></li>
-				<li><a class="tab tablinks" href="#"><svg class="svg-icon"><use xlink:href="#icon-sign"></use></svg> Sign</a></li>
+				<li><a class="tab tablinks" href="#" onclick="ui.htmlOpenTab(event, 'SignTx')"><svg class="svg-icon"><use xlink:href="#icon-sign"></use></svg> Sign</a></li>
 			</ul>
 		</nav>
 		<div class="features">
@@ -684,8 +687,14 @@
 			<div id="MultiSigTx" class="tabcontent">
 			  <h3>Multisignature Transaction</h3>
 			  <p>To send SIN to Sinovate multisig address, transaction can be create by everyone<br>
-			   and is required threshold signatures before to be broadcast in network.<br>
+			   and is required threshold signatures before to be broadcast network.<br>
+			  </p> 
 			</div>
+			<div id="SignTx" class="tabcontent">
+			  <h3>Sign Transaction</h3>	
+			  <p> Transaction can be created without signature in separate step. You can sign your transaction if you have SINKeyFile and passphrase.
+			  </p>
+			</div>			
 			<div id="BurnFundNodeTx" class="tabcontent">
 			  <h3>BurnFund to create InfinityNode</h3>
 			  <p>In order to run InfinityNode, you burn an amount to get a network's ticket.</p>
