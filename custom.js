@@ -27,7 +27,8 @@ var configs = {
     rawtx: null,
     coin: 100000000,
     collateral: 10000,
-    voteAmount: 100,
+    voteAmount: 1,
+	proposalAmount: 1000,
     sinBurnAddress: "SinBurnAddress123456789SuqaXbx3AMC",
     sinMetaAddress: "SinBurnAddressForMetadataXXXXEU2mj",
     sinNotificationAddress: "SinBurnAddressForNotifyXXXXXc42TcT",
@@ -79,6 +80,9 @@ const errorMessages = {
     "InvoiceInfoFormatKO": "Invoice's information is not allowed.",
     "InvoiceInfoFormatNull": "Please use Send coin option if you don't pay a merchant.",
     "ProposalOpinionKO": "Proposal opinion must be Yes or No.",
+    "ProposalFromHeightInt": "Proposal must begin(From) at Interger height of blockchain.",
+	"ProposalToHeightInt": "Proposal must end(To) at Interger height and superior than begin(From) height of blockchain.",
+	"ProposalVoteFee": "Vote fee must be an integer and superior than limit " + configs.voteAmount + " SIN.",
     "CreateMultiSigAddressKO": "Cannot create a MultiSignature address from inputs.",
     "CreateMultiSigReadKeysKO": "Cannot read all inputs public key.",
 	"SignTxWithLevelKO": "Cannot try to sign a transaction with this level.",
@@ -93,12 +97,13 @@ const errorMessages = {
 const defaults = {
 //Backend server
     url: 'https://mobile.sinovate.io/api/SinovateAPI.php',
+	url_proposal: 'https://mobile.sinovate.io/SinovateProposal.php',
     version: 'v1',
     timeout : 5000,
 }
 
 const methods = {
-    public  : [ 'utxo', 'sendtx', 'tx']
+    public  : [ 'utxo', 'sendtx', 'tx', 'sendproposal']
 };
 
 /**
@@ -186,13 +191,16 @@ class Backend {
             callback = params;
             params   = {};
         }
-        //const path     = this.config.version + method;
-        const url      = this.config.url;
 
-        const headers = {
+		const headers = {
             'method': method,
             'version': this.config.version
         };
+
+        var url      = this.config.url;
+		if (method == 'sendproposal') {url = this.config.url_proposal;}
+
+
         return await rawRequest(url, headers, params, this.config.timeout);
     }
 }
@@ -326,6 +334,40 @@ class UI {
             return false;
         }
     }
+	/**
+	 * check input proposal Height
+	 */
+	htmlCheckInputProposal(id) 
+	{
+		if(id == 'fromHeight'){
+			var fromHeight = parseInt($('#fromHeight').val());
+			if (!Number.isInteger(fromHeight)){
+				showError("ProposalFromHeightInt", 2);
+				return false;
+			}
+		}
+		if(id == 'toHeight'){
+			var fromHeight = parseInt($('#fromHeight').val());
+			var toHeight = parseInt($('#toHeight').val());
+			if (!Number.isInteger(fromHeight)){
+				showError("ProposalFromHeightInt", 2);
+				return false;
+			}
+			if (!Number.isInteger(toHeight) || (toHeight < fromHeight)){
+				showError("ProposalToHeightInt", 2);
+				return false;
+			}
+		}
+		if(id == 'voteFee'){
+			var voteFee = parseInt($('#voteFee').val());
+			if (!Number.isInteger(voteFee) || (voteFee < 1)){
+				showError("ProposalVoteFee", 2);
+				return false;
+			}
+		}
+		$('#error').hide();
+		return true;
+	}
     /**
      * check input for opinion
      */
@@ -364,6 +406,9 @@ class UI {
 						showError("CreateTxOffline", 0);
                     } else if (ui_config.nav_tab == 10){
                         $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateMultiSigTransaction()\">Create-Sign</button>");
+						$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
+					} else if (ui_config.nav_tab == 12){
+                        $('#txCreate').html("<button type=\"button\" onclick=\"ui.htmlCreateProposal()\">Create-Sign</button>");
 						$('#passphrase').html("<b style=\"color:red\">Passphrase:</b> <input id=\"txPassphrase\" type=\"password\" size=\"34\" placeholder=\"Enter your passphrase\"></input>");
                     } else {
                         showError("UnknownNav", 2);
@@ -480,6 +525,63 @@ class UI {
 				}
 			} catch (e) {
 				alert(e);
+				configs.rawtx = null;
+				$('#commitTx').html("");
+			}
+        }
+    }
+/**
+     * create Proposal
+	 * ProposalId = md5sum(tx.hash)
+     */
+    htmlCreateProposal(){
+        configs.rawtx == null;
+        $('#commitTx').html("");
+        $('#rawtx').html("");
+        if (wallet == null) {showError("WalletNULL", 2);}
+        else {
+			var fromHeight = parseInt($('#toHeight').val());
+			var toHeight = parseInt($('#toHeight'));
+			var voteFee = parseInt($('#voteFee').val());
+			var actionScript = $('#actionProposal').val();
+			var passphrase = $('#txPassphrase').val();
+			if (this.htmlCheckInputProposal('fromHeight') && this.htmlCheckInputProposal('toHeight') && this.htmlCheckInputProposal('voteFee'))
+			{
+				try {
+					var proposalParam='';
+					if (actionScript.trim() == ''){
+						//scriptUnlock = bitcore.Script.fromASM(actionScript);
+						proposalParam = fromHeight+ ";" + toHeight + ";" + voteFee;
+					} else {
+						var scriptAction = bitcore.Script.fromASM(actionScript);
+						proposalParam = fromHeight+ ";" + toHeight + ";" + voteFee + ";" + scriptAction.toHex();
+					}
+					// 100 characters is limit of SIN network data carrier
+					if (proposalParam.length <= 100) {
+						$('#rawtx').html("Creating a vote and send to " + configs.sinBurnAddress + " " + configs.voteAmount + " SIN");
+						var tx = wallet.createProposal(proposalParam, passphrase);
+						passphrase = '';
+						$('#passphrase').html("");
+						$('#txCreate').html("");
+						if (!tx){
+							configs.rawtx = null;
+							$('#commitTx').html("");
+						}else{
+							configs.rawtx = tx;
+							$('#txFee').html(bitcore.Unit.fromSatoshis(tx.getFee()).toBTC());
+							$('#rawtx').html(tx.serialize());
+							$('#commitTx').html("<button type=\"button\" id=\"txSend\" onclick=\"ui.htmlSendProposal()\">Send</button>");
+						}
+					}
+				} catch (e) {
+					alert(e);
+					configs.rawtx = null;
+					$('#commitTx').html("");
+				}
+			}else{
+				passphrase = '';
+				$('#passphrase').html("");
+				$('#txCreate').html("");
 				configs.rawtx = null;
 				$('#commitTx').html("");
 			}
@@ -651,7 +753,6 @@ class UI {
 	}
     /**
      * button send transaction is clicked
-     *
      */
     htmlSendTransaction(){
         $('#commitTx').html("");
@@ -672,6 +773,28 @@ class UI {
             }
         }
     }
+	/**
+	 * button send proposal is clicked
+	 */
+	htmlSendProposal(){
+		$('#commitTx').html("");
+        if (wallet == null) {showError("WalletNULL", 2); }
+		else {
+		        if (configs.rawtx == null){    showError("SendTxNull", 1);    } else {
+                (async () => {
+                    var txhash = await backend.api('sendproposal', {'tx':configs.rawtx.toString(), 'desc': $('#description').val()});
+                    if (typeof txhash.result === 'undefined' || typeof txhash.error === 'string') {
+                        configs.rawtx = null;
+                        $('#rawtx').html("ERROR: cannot send tx! " + txhash.error);
+                    }
+                    else {
+                        $('#rawtx').html(txhash.result);
+                        showError("SendTxCommited", 0);
+                    }
+                })();
+            }
+		}
+	}
     /**
      * send Coin from Alice to Bob
      */
@@ -826,7 +949,7 @@ class UI {
         ui_config.nav_tab = 11;
 		if (configs.level == 2) {
 			$('#SignTx').html(
-				"<p>Input: <br><textarea rows=\"5\" cols=\"80\" id=\"rawtxinput\"></textarea></p>" +
+				"<p>Input(JSON format): <br><textarea rows=\"5\" cols=\"80\" id=\"rawtxinput\"></textarea></p>" +
 				"<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyTxInput()\">Verify input</button></p>" +
 				"<p>Transaction: <div id=\"txInfo\"></div></p>" +
 				"<p>Fee: <b id=\"txFee\"></b></p>" +
@@ -841,6 +964,39 @@ class UI {
 			);
 			showError("SignTxWithLevelKO", 1);
 		}
+	}
+	/**
+	 * create proposal
+	 */
+	htmlUICreateProposal(){
+	    $('#Proposal').html("");
+        ui_config.nav_tab = 12;
+        $('#Proposal').html(
+            "<div id=\"vote\">" +
+            "<p><form style=\"heigh:50px\" action=\"\">" +
+              "<div class=\"multiselect\">" +
+                "<div class=\"selectBox\" onclick=\"ui.htmlUpdateCoinControl()\">" +
+                  "<select>" +
+                    "<option>Coin control</option>" +
+                  "</select>" +
+                  "<div class=\"overSelect\"></div>" +
+                "</div>" +
+                "<div id=\"coincontrol\"></div>" +
+              "</div>" +
+            "</form></p>" +
+            "<p>Coin selected: <b id=\"coincontrol_selected\">0</b> SIN</p>" +
+            "<p>From height: <input id=\"fromHeight\" type=\"number\" placeholder=\"300000\" style=\"width:70px;\"  onchange=\"ui.htmlCheckInputProposal('fromHeight');\"/> To height: <input id=\"toHeight\" type=\"number\" placeholder=\"300100\" style=\"width:70px;\" onchange=\"ui.htmlCheckInputProposal('toHeight');\"/></p>" +
+            "<p>Vote Fee limit: <input id=\"voteFee\" type=\"number\" placeholder=\"1\" style=\"width:40px;\" onchange=\"ui.htmlCheckInputProposal('voteFee');\"/></p>" +
+            "<p>Action(optional): <br><textarea rows=\"8\" cols=\"80\"  id=\"actionProposal\"></textarea></p>" +
+			"<p>Description(optional): <br><textarea rows=\"8\" cols=\"80\"  id=\"description\"></textarea></p>" +
+            "<p id=\"passphrase\"></p>" +
+            "<p id=\"txVerify\"><button type=\"button\" onclick=\"ui.htmlVerifyCoinSelected()\">Verify input</button></p>" +
+            "<p id=\"txCreate\"></p>" +
+            "<p>Transaction: <br><textarea rows=\"5\" cols=\"80\"  id=\"rawtx\"></textarea></p>" +
+            "<p id=\"commitTx\"></p>" +
+            "</div>"
+        );
+		this.htmlUpdateCoinControlFromAmount(configs.proposalAmount);
 	}
     /**
      * BurnFund to create node
@@ -904,6 +1060,7 @@ class UI {
         if (itemName == "MultiSig" && wallet != null){this.htmlUICreateMultiSigAddress();}
         if (itemName == "MultiSigTx" && wallet != null){this.htmlUICreateMultiSigTx();}
         if (itemName == "SignTx" && wallet != null){this.htmlUISignTransaction();}
+		if (itemName == "Proposal" && wallet != null){this.htmlUICreateProposal();}
         if (itemName == "BurnFundNodeTx" && wallet != null){this.htmlUIBurnFundNode();}
         if (itemName == "UpdateMetadataTx" && wallet != null){this.htmlUIUpdateMeatdataNode();}
         if (itemName == "ChangeRewardAddress" && wallet != null){this.htmlUIChangeRewardAddress();}
@@ -1191,6 +1348,51 @@ class WebWallet {
             return false;
         }
     }
+	/**
+	 * create proposal
+	 */
+	createProposal(proposalParam, passphrase){
+	    if(typeof proposalParam != 'string' || proposalParam.length > 100) return false;
+		var utxos = [];
+        if (this.coinscontrol_selected.length > 0){
+            for (var i=0; i<this.coinscontrol_selected.length; i++){
+                for (var j=0; j<this.coinscontrol_selected_detail.length; j++){
+                    if(this.coinscontrol_selected[i].txid == this.coinscontrol_selected_detail[j].txid && 
+                        this.coinscontrol_selected[i].vout == this.coinscontrol_selected_detail[j].vout) {
+                        var utxo = {
+                            "txId": this.coinscontrol_selected[i].txid,
+                            "outputIndex": this.coinscontrol_selected[i].vout,
+                            "satoshis" : this.coinscontrol_selected[i].satoshis,
+                            "address": this.coinscontrol_selected_detail[j].address,
+                            "script": this.coinscontrol_selected_detail[j].script
+                        }
+                        utxos.push(utxo);
+                    }
+                }
+            }
+        }
+
+        var Unit = bitcore.Unit;
+        var value = Unit.fromBTC(configs.proposalAmount).toSatoshis();
+
+        try {
+            //SIN fee change 100000 -> 20000000: double fee to make sure tx will be send
+            var transaction = new bitcore.Transaction()
+               .from(utxos)
+               .addBurnData(configs.sinGovernanceAddress, proposalParam, value)
+               .feePerKb(20000000)
+               .change(this.config.address.toString())
+               .sign(bitcore.PrivateKey.fromEncrypted(this.config.cipherTxt, this.config.vSalt, this.config.rounds, passphrase))
+               ;
+            return transaction;
+        } catch(e) {
+            alert(e)
+            passphrase = '';
+            $('#passphrase').html("");
+            $('#txCreate').html("");
+            return false;
+        }
+	}
     /**
      * create vote
      * @param {String} nProposalId
