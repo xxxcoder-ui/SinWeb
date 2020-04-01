@@ -1,5 +1,5 @@
 # SINWebTool
-SIN Web Client Side Tool for user
+SIN Web Client Side Tool 
 HTML / Javascript / css
 
 # Features
