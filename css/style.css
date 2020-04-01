@@ -376,6 +376,11 @@ input[type="month"] {
 textarea {
     overflow: auto;
     resize: vertical;
+    background: white;
+    border-radius: 5px;
+    margin-top: 15px;
+    border-style: solid;
+    border-color: #3855D9;
 }
 
 fieldset {
