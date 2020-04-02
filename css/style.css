@@ -99,6 +99,7 @@ section {
 
 .tabcontent {
     display: none;
+    animation-duration: 2s;
 }
 
 .together {
@@ -11931,6 +11932,7 @@ a.whitef {
     -moz-box-shadow: 0px 7px 15px -8px rgba(0, 0, 0, 0.75);
     box-shadow: 0px 7px 15px -8px rgba(0, 0, 0, 0.75);
     background-color: #ffff;
+    z-index: 100;
 }
 
 .whitef {
