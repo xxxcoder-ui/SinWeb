@@ -13,12 +13,13 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
 </head>
 
 <body>
 
     <div class="wrapper d-flex align-items-stretch">
-        <nav id="sidebar" class="active">
+        <nav id="sidebar" class="active animated fadeInLeft">
             <img class="logoimg" src="images/logo.png">
             <hr class="hrline">
             <ul class="list-unstyled components mb-5">
@@ -49,7 +50,7 @@
 
             </ul>
         </nav>
-        <div id="content" class="p-4 p-md-5">
+        <div id="content" class="p-4 p-md-5 animated fadeInDown">
             <div class="row">
                 <div class="col">
                     <div class="balanceuser p-4">
@@ -58,7 +59,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="features p-4 featureInputs">
+                    <div class="features p-4 featureInputs animated fadeInDown" >
                         <p id="error" style="display: none;"></p>
                         <p id="appinput">Address: <input id="inputaddress" class="form-control" type="text" size="34" accept="text/plain" placeholder="SIN address format" onchange="openWalletForAddress(event)"><br>
                             OR Import Keyfile: <input id="keyfile" type="file" accept="text/plain" onchange="openWalletFromKeyJSONFile(event)"><br>
@@ -68,20 +69,20 @@
                     <div class="col"></div>
                 </div>
             </div>
-            <div id="SendcoinTx" class="tabcontent backtab">
+            <div id="SendcoinTx" class="tabcontent backtab animated fadeInLeft">
                 <h3>Send coin</h3>
                 <p>Send SIN cryptocurrency from Alice to Bob.</p>
             </div>
-            <div id="InvoicePayment" class="tabcontent backtab">
+            <div id="InvoicePayment" class="tabcontent backtab animated fadeInLeft">
                 <h3>Invoice payment</h3>
                 <p>Invoice Validation. If the merchant supports SIN,<br>
                     the invoice can be validated in a few seconds (more detail will be released in the future)</p>
             </div>
-            <div id="VoteTx" class="tabcontent backtab">
+            <div id="VoteTx" class="tabcontent backtab animated fadeInLeft">
                 <h3>Vote</h3>
                 <p>Participate in SINOVATE Governance.</p>
             </div>
-            <div id="MultiSig" class="tabcontent backtab">
+            <div id="MultiSig" class="tabcontent backtab animated fadeInLeft">
                 <h3>Multisignature Address</h3>
                 <p>Multisignature (multisig) refers to requiring multiple keys to authorize a <br>
                     Sinovate transaction, rather than a single signature from one key.<br>
@@ -96,22 +97,22 @@
                             <p id="commitTx"></p>
                         </p>
             </div>
-            <div id="MultiSigTx" class="tabcontent backtab">
+            <div id="MultiSigTx" class="tabcontent backtab animated fadeInLeft">
                 <h3>Multisignature Transaction</h3>
                 <p>To send SIN to a SINOVATE multisig address, a transaction can be created by everyone, and it requires threshold signatures before being broadcasted to the network.
                 </p>
             </div>
-            <div id="SignTx" class="tabcontent backtab">
+            <div id="SignTx" class="tabcontent backtab animated fadeInLeft">
                 <h3>Sign Transaction</h3>
                 <p>A transaction can be created without a signature in a separate step. You can sign your transaction if you have SINKeyFile and passphrase.
                 </p>
             </div>
-            <div id="Proposal" class="tabcontent backtab">
+            <div id="Proposal" class="tabcontent backtab animated fadeInLeft">
                 <h3>Proposal</h3>
                 <p>Proposals and Voting are essential processes in our governance of the SINOVATE public chain.
                 </p>
             </div>
-            <div id="BurnFundNodeTx" class="tabcontent backtab">
+            <div id="BurnFundNodeTx" class="tabcontent backtab animated fadeInLeft">
                 <h3>Keyfile </h3>
                 <p>To use this tool, please use SIN wallet and export a Keyfile with RPC<br>exportaddressnewpass youraddress newpassphrase
                 </p>
