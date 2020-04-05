@@ -17,7 +17,6 @@
 </head>
 
 <body>
-
     <div class="wrapper d-flex align-items-stretch">
         <nav id="sidebar" class="active animated fadeInLeft">
             <img class="logoimg" src="images/logo.png">
@@ -59,7 +58,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="features p-4 featureInputs animated fadeInDown" >
+                    <div class="features p-4 featureInputs animated fadeInDown">
                         <p id="error" style="display: none;"></p>
                         <p id="appinput">Address: <input id="inputaddress" class="form-control" type="text" size="34" accept="text/plain" placeholder="SIN address format" onchange="openWalletForAddress(event)"><br>
                             OR Import Keyfile: <input id="keyfile" type="file" accept="text/plain" onchange="openWalletFromKeyJSONFile(event)"><br>
@@ -67,6 +66,19 @@
                 </div>
                 <div class="col">
                     <div class="col"></div>
+                </div>
+            </div>
+            <div class="row tabcontent welcome">
+                <div class="col">
+                    <h1>Welcome To SINOVATE WebTool</h1>
+                    <p>SIN Web Client Side Tool HTML / Javascript / CSS / Bootstrap</p>
+                    <p><em>Features</em></p>
+                    <ul>
+                        <li>Send coin nominative feature</li>
+                        <li>Invoice payment transaction with attached information</li>
+                        <li>Vote E-Governance vote</li>
+                        <li>New features Coming soon</li>
+                    </ul>
                 </div>
             </div>
             <div id="SendcoinTx" class="tabcontent backtab animated fadeInLeft">
@@ -121,7 +133,6 @@
 
 
         <script type="text/javascript">
-            //hide error alert at the beginning.
             $('#error').hide();
             $('#txCreate').hide();
             $('#userinfo').hide();
