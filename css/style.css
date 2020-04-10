@@ -9789,6 +9789,10 @@ button.bg-dark:focus {
         margin-left: 1rem !important;
     }
 
+#sidebar ul li a:hover {
+    font-size: 16px;
+}
+
     .m-sm-4 {
         margin: 1.5rem !important;
     }
@@ -12020,7 +12024,6 @@ a.whitef {
     padding: 10px 30px;
     display: block;
     color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #sidebar ul li a span {
