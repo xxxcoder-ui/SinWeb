@@ -88,7 +88,7 @@ const errorMessages = {
     "SignTxWithLevelKO": "Cannot try to sign a transaction with this level.",
     "SignMultiSigRequire": "Transaction needs more signature to get valid state.",
     "SendTxNull": "Please create your transaction...",
-    "SendTxCommited": "Transaction is broadcasted to network successfully!",
+    "SendTxCommited": "Transaction is broadcasted  to the network with success!",
 }
 
 /**
