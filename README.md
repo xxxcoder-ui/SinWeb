@@ -17,4 +17,4 @@ To use this tool, please use SIN wallet and export a Keyfile with RPC
 ```
 exportaddressnewpass youraddress newpassphrase
 ```
-![](https://cdn.discordapp.com/attachments/552167734071263296/694992760461197342/webwalelt.jpg)
+![](https://cdn.discordapp.com/attachments/552167734071263296/707673915056455780/Capture.PNG)
